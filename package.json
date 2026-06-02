@@ -1,0 +1,11 @@
+{
+	"dependencies": {
+		"@hookform/resolvers": "^5.4.0",
+		"@supabase/supabase-js": "^2.106.2",
+		"clsx": "^2.1.1",
+		"react-hook-form": "^7.76.1",
+		"tailwind-merge": "^3.6.0",
+		"zod": "^4.4.3",
+		"zustand": "^5.0.14"
+	}
+}

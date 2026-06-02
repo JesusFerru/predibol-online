@@ -1,0 +1,566 @@
+{
+  "groupsList": [
+    {
+      "code": "A",
+      "name": "Grupo A",
+      "teams": [
+        "MEX",
+        "RSA",
+        "KOR",
+        "CZE"
+      ]
+    },
+    {
+      "code": "B",
+      "name": "Grupo B",
+      "teams": [
+        "CAN",
+        "BIH",
+        "QAT",
+        "SUI"
+      ]
+    },
+    {
+      "code": "C",
+      "name": "Grupo C",
+      "teams": [
+        "BRA",
+        "HTI",
+        "MAR",
+        "SCT"
+      ]
+    },
+    {
+      "code": "D",
+      "name": "Grupo D",
+      "teams": [
+        "USA",
+        "AUS",
+        "PAR",
+        "TUR"
+      ]
+    },
+    {
+      "code": "E",
+      "name": "Grupo E",
+      "teams": [
+        "CUR",
+        "ECU",
+        "GER",
+        "CIV"
+      ]
+    },
+    {
+      "code": "F",
+      "name": "Grupo F",
+      "teams": [
+        "NED",
+        "JPN",
+        "SWE",
+        "TUN"
+      ]
+    },
+    {
+      "code": "G",
+      "name": "Grupo G",
+      "teams": [
+        "BEL",
+        "EGY",
+        "IRN",
+        "NZL"
+      ]
+    },
+    {
+      "code": "H",
+      "name": "Grupo H",
+      "teams": [
+        "ESP",
+        "URU",
+        "SAU",
+        "CPV"
+      ]
+    },
+    {
+      "code": "I",
+      "name": "Grupo I",
+      "teams": [
+        "FRA",
+        "NOR",
+        "SEN",
+        "IRQ"
+      ]
+    },
+    {
+      "code": "J",
+      "name": "Grupo J",
+      "teams": [
+        "ARG",
+        "AUT",
+        "ALG",
+        "JOR"
+      ]
+    },
+    {
+      "code": "K",
+      "name": "Grupo K",
+      "teams": [
+        "COL",
+        "JAM",
+        "POR",
+        "UZB"
+      ]
+    },
+    {
+      "code": "L",
+      "name": "Grupo L",
+      "teams": [
+        "ENG",
+        "CRO",
+        "GHA",
+        "PAN"
+      ]
+    }
+  ],
+  "teamsList": [
+    {
+      "confed": "CONCACAF",
+      "continent": "North America",
+      "fifa_code": "MEX",
+      "flag_icon": "🇲🇽",
+      "flag_unicode": "\\u{1F1F2}\\u{1F1FD}",
+      "group": "A",
+      "name": "Mexico"
+    },
+    {
+      "confed": "CAF",
+      "continent": "Africa",
+      "fifa_code": "RSA",
+      "flag_icon": "🇿🇦",
+      "flag_unicode": "\\u{1F1FF}\\u{1F1E6}",
+      "group": "A",
+      "name": "South Africa"
+    },
+    {
+      "confed": "AFC",
+      "continent": "Asia",
+      "fifa_code": "KOR",
+      "flag_icon": "🇰🇷",
+      "flag_unicode": "\\u{1F1F0}\\u{1F1F7}",
+      "group": "A",
+      "name": "South Korea",
+      "name_normalised": "Korea Republic"
+    },
+    {
+      "confed": "UEFA",
+      "continent": "Europe",
+      "fifa_code": "CZE",
+      "flag_icon": "🇨🇿",
+      "flag_unicode": "\\u{1F1E8}\\u{1F1FF}",
+      "group": "A",
+      "name": "Czech Republic",
+      "name_normalised": "Czechia"
+    },
+    {
+      "confed": "CONCACAF",
+      "continent": "North America",
+      "fifa_code": "CAN",
+      "flag_icon": "🇨🇦",
+      "flag_unicode": "\\u{1F1E8}\\u{1F1E6}",
+      "group": "B",
+      "name": "Canada"
+    },
+    {
+      "confed": "UEFA",
+      "continent": "Europe",
+      "fifa_code": "BIH",
+      "flag_icon": "🇧🇦",
+      "flag_unicode": "\\u{1F1E7}\\u{1F1E6}",
+      "group": "B",
+      "name": "Bosnia & Herzegovina"
+    },
+    {
+      "confed": "AFC",
+      "continent": "Asia",
+      "fifa_code": "QAT",
+      "flag_icon": "🇶🇦",
+      "flag_unicode": "\\u{1F1F6}\\u{1F1E6}",
+      "group": "B",
+      "name": "Qatar"
+    },
+    {
+      "confed": "UEFA",
+      "continent": "Europe",
+      "fifa_code": "SUI",
+      "flag_icon": "🇨🇭",
+      "flag_unicode": "\\u{1F1E8}\\u{1F1ED}",
+      "group": "B",
+      "name": "Switzerland"
+    },
+    {
+      "confed": "CONMEBOL",
+      "continent": "South America",
+      "fifa_code": "BRA",
+      "flag_icon": "🇧🇷",
+      "flag_unicode": "\\u{1F1E7}\\u{1F1F7}",
+      "group": "C",
+      "name": "Brazil"
+    },
+    {
+      "confed": "CAF",
+      "continent": "Africa",
+      "fifa_code": "MAR",
+      "flag_icon": "🇲🇦",
+      "flag_unicode": "\\u{1F1F2}\\u{1F1E6}",
+      "group": "C",
+      "name": "Morocco"
+    },
+    {
+      "confed": "CONCACAF",
+      "continent": "North America",
+      "fifa_code": "HAI",
+      "flag_icon": "🇭🇹",
+      "flag_unicode": "\\u{1F1ED}\\u{1F1F9}",
+      "group": "C",
+      "name": "Haiti"
+    },
+    {
+      "confed": "UEFA",
+      "continent": "Europe",
+      "fifa_code": "SCO",
+      "flag_icon": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+      "flag_unicode": "\\u{1F3F4}\\u{E0067}\\u{E0062}\\u{E0073}\\u{E0063}\\u{E0074}\\u{E007F}",
+      "group": "C",
+      "name": "Scotland"
+    },
+    {
+      "confed": "CONCACAF",
+      "continent": "North America",
+      "fifa_code": "USA",
+      "flag_icon": "🇺🇸",
+      "flag_unicode": "\\u{1F1FA}\\u{1F1F8}",
+      "group": "D",
+      "name": "USA",
+      "name_normalised": "United States"
+    },
+    {
+      "confed": "CONMEBOL",
+      "continent": "South America",
+      "fifa_code": "PAR",
+      "flag_icon": "🇵🇾",
+      "flag_unicode": "\\u{1F1F5}\\u{1F1FE}",
+      "group": "D",
+      "name": "Paraguay"
+    },
+    {
+      "confed": "AFC",
+      "continent": "Oceania",
+      "fifa_code": "AUS",
+      "flag_icon": "🇦🇺",
+      "flag_unicode": "\\u{1F1E6}\\u{1F1FA}",
+      "group": "D",
+      "name": "Australia"
+    },
+    {
+      "confed": "UEFA",
+      "continent": "Europe",
+      "fifa_code": "TUR",
+      "flag_icon": "🇹🇷",
+      "flag_unicode": "\\u{1F1F9}\\u{1F1F7}",
+      "group": "D",
+      "name": "Turkey",
+      "name_normalised": "Türkiye"
+    },
+    {
+      "confed": "UEFA",
+      "continent": "Europe",
+      "fifa_code": "GER",
+      "flag_icon": "🇩🇪",
+      "flag_unicode": "\\u{1F1E9}\\u{1F1EA}",
+      "group": "E",
+      "name": "Germany"
+    },
+    {
+      "confed": "CONCACAF",
+      "continent": "North America",
+      "fifa_code": "CUW",
+      "flag_icon": "🇨🇼",
+      "flag_unicode": "\\u{1F1E8}\\u{1F1FC}",
+      "group": "E",
+      "name": "Curaçao"
+    },
+    {
+      "confed": "CAF",
+      "continent": "Africa",
+      "fifa_code": "CIV",
+      "flag_icon": "🇨🇮",
+      "flag_unicode": "\\u{1F1E8}\\u{1F1EE}",
+      "group": "E",
+      "name": "Ivory Coast",
+      "name_normalised": "Cote d'Ivoire"
+    },
+    {
+      "confed": "CONMEBOL",
+      "continent": "South America",
+      "fifa_code": "ECU",
+      "flag_icon": "🇪🇨",
+      "flag_unicode": "\\u{1F1EA}\\u{1F1E8}",
+      "group": "E",
+      "name": "Ecuador"
+    },
+    {
+      "confed": "UEFA",
+      "continent": "Europe",
+      "fifa_code": "NED",
+      "flag_icon": "🇳🇱",
+      "flag_unicode": "\\u{1F1F3}\\u{1F1F1}",
+      "group": "F",
+      "name": "Netherlands"
+    },
+    {
+      "confed": "AFC",
+      "continent": "Asia",
+      "fifa_code": "JPN",
+      "flag_icon": "🇯🇵",
+      "flag_unicode": "\\u{1F1EF}\\u{1F1F5}",
+      "group": "F",
+      "name": "Japan"
+    },
+    {
+      "confed": "UEFA",
+      "continent": "Europe",
+      "fifa_code": "SWE",
+      "flag_icon": "🇸🇪",
+      "flag_unicode": "\\u{1F1F8}\\u{1F1EA}",
+      "group": "F",
+      "name": "Sweden"
+    },
+    {
+      "confed": "CAF",
+      "continent": "Africa",
+      "fifa_code": "TUN",
+      "flag_icon": "🇹🇳",
+      "flag_unicode": "\\u{1F1F9}\\u{1F1F3}",
+      "group": "F",
+      "name": "Tunisia"
+    },
+    {
+      "confed": "UEFA",
+      "continent": "Europe",
+      "fifa_code": "BEL",
+      "flag_icon": "🇧🇪",
+      "flag_unicode": "\\u{1F1E7}\\u{1F1EA}",
+      "group": "G",
+      "name": "Belgium"
+    },
+    {
+      "confed": "CAF",
+      "continent": "Africa",
+      "fifa_code": "EGY",
+      "flag_icon": "🇪🇬",
+      "flag_unicode": "\\u{1F1EA}\\u{1F1EC}",
+      "group": "G",
+      "name": "Egypt"
+    },
+    {
+      "confed": "AFC",
+      "continent": "Asia",
+      "fifa_code": "IRN",
+      "flag_icon": "🇮🇷",
+      "flag_unicode": "\\u{1F1EE}\\u{1F1F7}",
+      "group": "G",
+      "name": "Iran",
+      "name_normalised": "IR Iran"
+    },
+    {
+      "confed": "OFC",
+      "continent": "Oceania",
+      "fifa_code": "NZL",
+      "flag_icon": "🇳🇿",
+      "flag_unicode": "\\u{1F1F3}\\u{1F1FF}",
+      "group": "G",
+      "name": "New Zealand"
+    },
+    {
+      "confed": "UEFA",
+      "continent": "Europe",
+      "fifa_code": "ESP",
+      "flag_icon": "🇪🇸",
+      "flag_unicode": "\\u{1F1EA}\\u{1F1F8}",
+      "group": "H",
+      "name": "Spain"
+    },
+    {
+      "confed": "CAF",
+      "continent": "Africa",
+      "fifa_code": "CPV",
+      "flag_icon": "🇨🇻",
+      "flag_unicode": "\\u{1F1E8}\\u{1F1FB}",
+      "group": "H",
+      "name": "Cape Verde",
+      "name_normalised": "Cabo Verde"
+    },
+    {
+      "confed": "AFC",
+      "continent": "Asia",
+      "fifa_code": "KSA",
+      "flag_icon": "🇸🇦",
+      "flag_unicode": "\\u{1F1F8}\\u{1F1E6}",
+      "group": "H",
+      "name": "Saudi Arabia"
+    },
+    {
+      "confed": "CONMEBOL",
+      "continent": "South America",
+      "fifa_code": "URU",
+      "flag_icon": "🇺🇾",
+      "flag_unicode": "\\u{1F1FA}\\u{1F1FE}",
+      "group": "H",
+      "name": "Uruguay"
+    },
+    {
+      "confed": "UEFA",
+      "continent": "Europe",
+      "fifa_code": "FRA",
+      "flag_icon": "🇫🇷",
+      "flag_unicode": "\\u{1F1EB}\\u{1F1F7}",
+      "group": "I",
+      "name": "France"
+    },
+    {
+      "confed": "CAF",
+      "continent": "Africa",
+      "fifa_code": "SEN",
+      "flag_icon": "🇸🇳",
+      "flag_unicode": "\\u{1F1F8}\\u{1F1F3}",
+      "group": "I",
+      "name": "Senegal"
+    },
+    {
+      "confed": "AFC",
+      "continent": "Asia",
+      "fifa_code": "IRQ",
+      "flag_icon": "🇮🇶",
+      "flag_unicode": "\\u{1F1EE}\\u{1F1F6}",
+      "group": "I",
+      "name": "Iraq"
+    },
+    {
+      "confed": "UEFA",
+      "continent": "Europe",
+      "fifa_code": "NOR",
+      "flag_icon": "🇳🇴",
+      "flag_unicode": "\\u{1F1F3}\\u{1F1F4}",
+      "group": "I",
+      "name": "Norway"
+    },
+    {
+      "confed": "CONMEBOL",
+      "continent": "South America",
+      "fifa_code": "ARG",
+      "flag_icon": "🇦🇷",
+      "flag_unicode": "\\u{1F1E6}\\u{1F1F7}",
+      "group": "J",
+      "name": "Argentina"
+    },
+    {
+      "confed": "CAF",
+      "continent": "Africa",
+      "fifa_code": "ALG",
+      "flag_icon": "🇩🇿",
+      "flag_unicode": "\\u{1F1E9}\\u{1F1FF}",
+      "group": "J",
+      "name": "Algeria"
+    },
+    {
+      "confed": "UEFA",
+      "continent": "Europe",
+      "fifa_code": "AUT",
+      "flag_icon": "🇦🇹",
+      "flag_unicode": "\\u{1F1E6}\\u{1F1F9}",
+      "group": "J",
+      "name": "Austria"
+    },
+    {
+      "confed": "AFC",
+      "continent": "Asia",
+      "fifa_code": "JOR",
+      "flag_icon": "🇯🇴",
+      "flag_unicode": "\\u{1F1EF}\\u{1F1F4}",
+      "group": "J",
+      "name": "Jordan"
+    },
+    {
+      "confed": "UEFA",
+      "continent": "Europe",
+      "fifa_code": "POR",
+      "flag_icon": "🇵🇹",
+      "flag_unicode": "\\u{1F1F5}\\u{1F1F9}",
+      "group": "K",
+      "name": "Portugal"
+    },
+    {
+      "confed": "CAF",
+      "continent": "Africa",
+      "fifa_code": "COD",
+      "flag_icon": "🇨🇩",
+      "flag_unicode": "\\u{1F1E8}\\u{1F1E9}",
+      "group": "K",
+      "name": "DR Congo",
+      "name_normalised": "Congo DR"
+    },
+    {
+      "confed": "AFC",
+      "continent": "Asia",
+      "fifa_code": "UZB",
+      "flag_icon": "🇺🇿",
+      "flag_unicode": "\\u{1F1FA}\\u{1F1FF}",
+      "group": "K",
+      "name": "Uzbekistan"
+    },
+    {
+      "confed": "CONMEBOL",
+      "continent": "South America",
+      "fifa_code": "COL",
+      "flag_icon": "🇨🇴",
+      "flag_unicode": "\\u{1F1E8}\\u{1F1F4}",
+      "group": "K",
+      "name": "Colombia"
+    },
+    {
+      "confed": "UEFA",
+      "continent": "Europe",
+      "fifa_code": "ENG",
+      "flag_icon": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+      "flag_unicode": "\\u{1F3F4}\\u{E0067}\\u{E0062}\\u{E0065}\\u{E006E}\\u{E0067}\\u{E007F}",
+      "group": "L",
+      "name": "England"
+    },
+    {
+      "confed": "UEFA",
+      "continent": "Europe",
+      "fifa_code": "CRO",
+      "flag_icon": "🇭🇷",
+      "flag_unicode": "\\u{1F1ED}\\u{1F1F7}",
+      "group": "L",
+      "name": "Croatia"
+    },
+    {
+      "confed": "CAF",
+      "continent": "Africa",
+      "fifa_code": "GHA",
+      "flag_icon": "🇬🇭",
+      "flag_unicode": "\\u{1F1EC}\\u{1F1ED}",
+      "group": "L",
+      "name": "Ghana"
+    },
+    {
+      "confed": "CONCACAF",
+      "continent": "North America",
+      "fifa_code": "PAN",
+      "flag_icon": "🇵🇦",
+      "flag_unicode": "\\u{1F1F5}\\u{1F1E6}",
+      "group": "L",
+      "name": "Panama"
+    }
+  ]
+}
