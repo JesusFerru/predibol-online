@@ -1,0 +1,6 @@
+# Missing assets registry
+# Format: filename | intended usage | page/component
+
+wc-img-1.png | World Cup groups image for home page hero | src/app/page.tsx
+help-img-1.png | Interactive help tutorial image | src/app/help/page.tsx
+help-img-2.png | Interactive help tutorial image | src/app/help/page.tsx

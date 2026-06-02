@@ -1,65 +1,68 @@
+import { Shell } from "@/components/layout/shell";
 import Image from "next/image";
+import Link from "next/link";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
+    <Shell>
+      {/* Hero section */}
+      <section className="relative flex min-h-[calc(100vh-3.5rem)] items-center justify-center overflow-hidden">
         <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
+          src="/assets/images/background-wc26.jpg"
+          alt="World Cup 2026"
+          fill
+          className="object-cover"
           priority
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+        <div className="absolute inset-0 bg-black/65 backdrop-blur-[2px]" />
+
+        <div className="relative z-10 flex flex-col items-center gap-6 px-4 text-center">
+          <Image
+            src="/assets/images/tournaments_fifa-world-cup-2026--white_256x256.football-logos.cc.png"
+            alt="FIFA World Cup 2026"
+            width={160}
+            height={160}
+            className="h-auto w-32 sm:w-40"
+          />
+
+          <h1 className="max-w-2xl text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+            Predibol Online
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+
+          <p className="max-w-lg text-base leading-relaxed text-white/80 sm:text-lg">
+            The private prediction platform for the FIFA World Cup 2026.
+            Compete with friends, predict every match, and climb the
+            leaderboard.
+          </p>
+
+          <Link
+            href="/login"
+            className="inline-flex items-center gap-2 rounded-full bg-crimson px-8 py-3 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-crimson/90"
+          >
+            Sign in to submit your World Cup predictions
+          </Link>
+        </div>
+      </section>
+
+      {/* General info section */}
+      <section className="bg-white py-16">
+        <div className="mx-auto max-w-3xl px-4 text-center">
+          <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl">
+            FIFA World Cup 2026
+          </h2>
+          <p className="mt-4 text-sm leading-relaxed text-gray-600 sm:text-base">
+            The 23rd edition of the FIFA World Cup will be hosted by Canada,
+            Mexico, and the United States. For the first time in history, 48
+            nations will compete in the tournament, making it the largest World
+            Cup ever.
+          </p>
+          <p className="mt-3 text-sm leading-relaxed text-gray-600 sm:text-base">
+            The tournament kicks off on June 11, 2026, and culminates with the
+            final on July 19, 2026. Matches will be played across 16 host
+            cities in all three countries.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </section>
+    </Shell>
   );
 }
