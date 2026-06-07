@@ -1,4 +1,14 @@
--- 1. USERS TABLE (Whitelist & Credit Control)
+--(Whitelist)
+CREATE TABLE public.authorized_users (
+    email TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    alias TEXT UNIQUE NOT NULL,
+    is_admin BOOLEAN NOT NULL DEFAULT FALSE,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- USERS TABLE (Users logged and Credit Control)
 CREATE TABLE public.Users (
     id UUID PRIMARY KEY
         REFERENCES auth.users(id)
@@ -13,7 +23,9 @@ CREATE TABLE public.Users (
     createdAt TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- 2. MATCH RESULTS 
+
+
+-- MATCH RESULTS 
 -- Resultados oficiales de cada partido
 CREATE TABLE public.MatchResults (
     matchId TEXT PRIMARY KEY,          -- Unique ID (e.g., 'A1', 'B3', 'FINAL')
@@ -207,6 +219,7 @@ ALTER TABLE public.WinnersBets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.CashInflow ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.DailyPayouts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.TournamentRanking ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.authorized_users ENABLE ROW LEVEL SECURITY;
 
 -- Users: users can read their own row; admins can read all
 CREATE POLICY "Users can read own row"
@@ -337,6 +350,13 @@ CREATE POLICY "Authenticated users can read tournament ranking"
     TO authenticated
     USING (TRUE);
 
+-- authorized_users: authenticated users can read their own row
+CREATE POLICY "Authenticated users can read own authorized record"
+    ON public.authorized_users
+    FOR SELECT
+    TO authenticated
+    USING (email = auth.jwt() ->> 'email');
+
 -- =====================================================
 -- AUTH TRIGGER: auto-create Users row on signup
 -- =====================================================
@@ -346,16 +366,27 @@ RETURNS TRIGGER
 LANGUAGE plpgsql
 SECURITY DEFINER SET search_path = ''
 AS $$
+DECLARE
+    auth_user public.authorized_users%ROWTYPE;
 BEGIN
-    INSERT INTO public.Users (id, email, name, alias, "hasPaidEntry", "isAdmin")
-    VALUES (
-        NEW.id,
-        NEW.email,
-        COALESCE(NEW.raw_user_meta_data ->> 'full_name', NEW.email),
-        COALESCE(NEW.raw_user_meta_data ->> 'full_name', NEW.email),
-        FALSE,
-        FALSE
-    );
+    -- Only create a Users record if the email is whitelisted and active
+    SELECT * INTO auth_user
+    FROM public.authorized_users
+    WHERE email = NEW.email
+      AND active = TRUE;
+
+    IF FOUND THEN
+        INSERT INTO public.Users (id, email, name, alias, "hasPaidEntry", "isAdmin")
+        VALUES (
+            NEW.id,
+            auth_user.email,
+            auth_user.name,
+            auth_user.alias,
+            FALSE,  -- Default: payment pending
+            auth_user.is_admin
+        );
+    END IF;
+
     RETURN NEW;
 END;
 $$;

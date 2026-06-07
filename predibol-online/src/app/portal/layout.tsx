@@ -12,11 +12,24 @@ export default async function PortalLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
+  if (!user?.email) {
     redirect("/login");
   }
 
-  // Check whitelist and payment status
+  // Check whitelist authorization
+  const { data: authUser } = await supabase
+    .from("authorized_users")
+    .select("email")
+    .eq("email", user.email)
+    .eq("active", true)
+    .single();
+
+  if (!authUser) {
+    await supabase.auth.signOut();
+    redirect("/unauthorized");
+  }
+
+  // Check payment status
   const { data: profile } = await supabase
     .from("Users")
     .select("hasPaidEntry")

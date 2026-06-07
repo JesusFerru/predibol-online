@@ -1,6 +1,15 @@
 // Database types for Predibol Online
 // These mirror the schema defined in /database/schema.sql
 
+export interface AuthorizedUserRow {
+  email: string;
+  name: string;
+  alias: string;
+  is_admin: boolean;
+  active: boolean;
+  created_at: string;
+}
+
 export interface UserRow {
   id: string;
   email: string;
