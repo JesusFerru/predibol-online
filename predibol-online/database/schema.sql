@@ -228,14 +228,6 @@ CREATE POLICY "Users can read own row"
     TO authenticated
     USING (auth.uid() = id);
 
-CREATE POLICY "Admins can read all users"
-    ON public.Users
-    FOR SELECT
-    TO authenticated
-    USING (EXISTS (
-        SELECT 1 FROM public.Users u
-        WHERE u.id = auth.uid() AND u.isAdmin = TRUE
-    ));
 
 -- Users: users can update their own row (except hasPaidEntry and isAdmin)
 CREATE POLICY "Users can update own row"

@@ -6,16 +6,11 @@
  *
  * Usage:
  *   pnpm seed-matches
- *
- * Requires SUPABASE_SERVICE_ROLE_KEY in .env.local (the anon key
- * cannot write to matchresults — the table has only SELECT RLS).
  */
 
 import { createClient } from "@supabase/supabase-js";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-
-// ─── Types ──────────────────────────────────────────────
 
 interface JsonMatch {
   id: number;
@@ -36,135 +31,135 @@ interface Wc26Json {
 }
 
 interface MatchRow {
-  matchId: string;
+  matchid: number;
   team1: string;
   team2: string;
   goal1: number | null;
   goal2: number | null;
-  matchStatus: "PENDING" | "FINISHED" | "CANCELED";
-  hasExtraPool: boolean;
-  scheduleAt: string;
+  matchstatus: "PENDING" | "FINISHED" | "CANCELED";
+  hasextrapool: boolean;
+  scheduleat: string;
 }
 
-// ─── Env ────────────────────────────────────────────────
-
-const SUPABASE_URL: string = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const SERVICE_ROLE_KEY: string = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 if (!SUPABASE_URL) {
-  console.error("❌ NEXT_PUBLIC_SUPABASE_URL is not set in .env.local");
-  process.exit(1);
+  throw new Error("NEXT_PUBLIC_SUPABASE_URL is not configured");
 }
 
 if (!SERVICE_ROLE_KEY) {
-  console.error(
-    "❌ SUPABASE_SERVICE_ROLE_KEY is not set in .env.local\n" +
-      "   Add it to .env.local:\n" +
-      "   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key\n" +
-      "   Find it in Supabase Dashboard → Project Settings → API → service_role key",
-  );
-  process.exit(1);
+  throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured");
 }
-
-// ─── Kickoff parser ─────────────────────────────────────
 
 function parseKickoff(date: string, time: string): string {
   const match = time.match(/^(\d{2}):(\d{2})\s+UTC([+-]\d+)$/);
+
   if (!match) {
-    return new Date(date).toISOString();
+    throw new Error(
+      `Invalid kickoff format "${time}". Expected format: HH:mm UTC±X`,
+    );
   }
 
   const [, hours, minutes, offset] = match;
-  const hourNum = Number.parseInt(hours, 10);
-  const minNum = Number.parseInt(minutes, 10);
-  const offsetNum = Number.parseInt(offset, 10);
 
-  const [y, m, d] = date.split("-").map(Number);
+  const [year, month, day] = date.split("-").map(Number);
+
   const utcDate = new Date(
-    Date.UTC(y, m - 1, d, hourNum - offsetNum, minNum, 0),
+    Date.UTC(
+      year,
+      month - 1,
+      day,
+      Number(hours) - Number(offset),
+      Number(minutes),
+      0,
+      0,
+    ),
   );
 
   return utcDate.toISOString();
 }
 
-// ─── Status mapper ──────────────────────────────────────
-
-function mapStatus(jsonStatus: string): MatchRow["matchStatus"] {
-  switch (jsonStatus) {
+function mapStatus(status: string): MatchRow["matchstatus"] {
+  switch (status) {
     case "SCHEDULED":
       return "PENDING";
+
     case "FINISHED":
       return "FINISHED";
+
     case "CANCELED":
       return "CANCELED";
+
     default:
       return "PENDING";
   }
 }
 
-// ─── Main ───────────────────────────────────────────────
-
 async function main() {
-  console.log("🔵 Loading match data from extra_info/wc26.json …");
+  console.log("Loading wc26.json...");
 
-  const jsonPath = resolve(__dirname, "..", "extra_info", "wc26.json");
-  const raw = readFileSync(jsonPath, "utf-8");
+  const jsonPath = resolve(
+    process.cwd(),
+    "extra_info",
+    "wc26.json",
+  );
+
+  const raw = readFileSync(jsonPath, "utf8");
+
   const data: Wc26Json = JSON.parse(raw);
 
-  console.log(`   Found ${data.matches.length} matches in JSON.\n`);
+  console.log(`Found ${data.matches.length} matches`);
 
-  const rows: MatchRow[] = data.matches.map((m) => ({
-    matchId: String(m.id),
-    team1: m.team1,
-    team2: m.team2,
-    goal1: m.goalsTeam1 ?? null,
-    goal2: m.goalsTeam2 ?? null,
-    matchStatus: mapStatus(m.status),
-    hasExtraPool: false,
-    scheduleAt: parseKickoff(m.date, m.time),
+  const rows: MatchRow[] = data.matches.map((match) => ({
+    matchid: match.id,
+    team1: match.team1,
+    team2: match.team2,
+    goal1: match.goalsTeam1,
+    goal2: match.goalsTeam2,
+    matchstatus: mapStatus(match.status),
+    hasextrapool: false,
+    scheduleat: parseKickoff(match.date, match.time),
   }));
 
-  const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
-    auth: { persistSession: false },
-  });
+  const supabase = createClient(
+    SUPABASE_URL,
+    SERVICE_ROLE_KEY,
+    {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+      },
+    },
+  );
 
   const BATCH_SIZE = 50;
-  let processed = 0;
-  const errors: string[] = [];
 
   for (let i = 0; i < rows.length; i += BATCH_SIZE) {
     const batch = rows.slice(i, i + BATCH_SIZE);
+    console.log(rows[0]);
     const { error } = await supabase
       .from("matchresults")
       .upsert(batch, {
-        onConflict: "matchId",
-        ignoreDuplicates: false,
+        onConflict: "matchid",
       });
 
     if (error) {
-      errors.push(`Batch ${i / BATCH_SIZE + 1}: ${error.message}`);
-      continue;
+      throw error;
     }
 
     console.log(
-      `   Batch ${String(i / BATCH_SIZE + 1).padStart(3, " ")} — ${batch.length} matches (${batch[0].matchId} … ${batch[batch.length - 1].matchId})`,
+      `Processed batch ${Math.floor(i / BATCH_SIZE) + 1} (${batch.length} matches)`,
     );
-    processed += batch.length;
   }
 
-  console.log(`\n✅ Seed complete.`);
-  console.log(`   Total matches processed: ${processed}`);
-  console.log(`   Errors: ${errors.length}`);
-
-  if (errors.length > 0) {
-    console.log("\n⚠ Errors:");
-    for (const e of errors) {
-      console.log(`   - ${e}`);
-    }
-  }
+  console.log("Match sync completed successfully");
 }
 
-main().catch((err) => {
-  console.error("❌ Seed failed:", err);
-  process.exit(1);
-});
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error("Seed failed");
+    console.error(error);
+    process.exit(1);
+  });

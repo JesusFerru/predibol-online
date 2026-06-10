@@ -1,12 +1,6 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# owns
-docs/
-database/
-scripts/
-CLAUDE.md
-.env
-.env.local
+
 
 # dependencies
 /node_modules
