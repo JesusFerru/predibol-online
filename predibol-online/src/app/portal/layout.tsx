@@ -1,5 +1,4 @@
 import { Shell } from "@/components/layout/shell";
-import { isVerifiedToday, setVerificationCookie } from "@/lib/auth/verification";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -23,15 +22,10 @@ export default async function PortalLayout({
   } = await supabase.auth.getUser();
 
   if (!user?.email) {
-    redirect("/login");
+    redirect("/");
   }
 
-  // Fast path: if verified today, skip DB checks
-  if (await isVerifiedToday()) {
-    return <Shell>{children}</Shell>;
-  }
-
-  // Slow path: run full verification chain
+  // Check whitelist authorization
   const { data: authUser } = await supabase
     .from("authorized_users")
     .select("email")
@@ -44,6 +38,7 @@ export default async function PortalLayout({
     redirect("/unauthorized");
   }
 
+  // Check payment status
   const { data: profile } = await supabase
     .from("users")
     .select("*")
@@ -53,9 +48,6 @@ export default async function PortalLayout({
   if (!getHasPaidEntry(profile)) {
     redirect("/payment-pending");
   }
-
-  // Cache verification in browser for the rest of the day
-  await setVerificationCookie();
 
   return <Shell>{children}</Shell>;
 }
