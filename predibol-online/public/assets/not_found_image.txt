@@ -1,0 +1,11 @@
+# Missing Assets for Phase 2 - Core Prediction System
+
+## Team Flags / Logos
+- /assets/flags/{team-code}.png - Team flag for each country (e.g., MEX.png, RSA.png, KOR.png)
+  - Used in: PredictionCard component (team initials are shown as placeholder)
+  - Page: /portal
+
+## Team Badges (larger, for match detail)
+- /assets/teams/{team-code}.png - Larger team badge/logo
+  - Used in: PredictionCard component
+  - Page: /portal
