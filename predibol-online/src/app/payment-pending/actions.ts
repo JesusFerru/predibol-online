@@ -1,5 +1,6 @@
 "use server";
 
+import { setVerificationCookie } from "@/lib/auth/verification";
 import { createClient } from "@/lib/supabase/server";
 
 function getHasPaidEntry(profile: Record<string, unknown> | null): boolean {
@@ -27,5 +28,11 @@ export async function verifyPayment(): Promise<{ paid: boolean }> {
     .eq("id", user.id)
     .maybeSingle();
 
-  return { paid: getHasPaidEntry(profile) };
+  const paid = getHasPaidEntry(profile);
+
+  if (paid) {
+    await setVerificationCookie();
+  }
+
+  return { paid };
 }

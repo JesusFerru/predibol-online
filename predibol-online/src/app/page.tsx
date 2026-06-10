@@ -1,8 +1,15 @@
 import { Shell } from "@/components/layout/shell";
+import { isVerifiedToday } from "@/lib/auth/verification";
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
-export default function HomePage() {
+export default async function HomePage() {
+  // If verified today, skip the landing page and go straight to predictions
+  if (await isVerifiedToday()) {
+    redirect("/portal");
+  }
+
   return (
     <Shell>
       {/* Hero section */}

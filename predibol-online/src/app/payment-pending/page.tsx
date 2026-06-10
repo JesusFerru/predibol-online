@@ -1,12 +1,11 @@
 import { VerifyPaymentButton } from "@/components/auth/verify-payment-button";
+import { setVerificationCookie } from "@/lib/auth/verification";
 import { createClient } from "@/lib/supabase/server";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 
 function getHasPaidEntry(profile: Record<string, unknown> | null): boolean {
   if (!profile) return false;
-  // PostgreSQL folds unquoted identifiers to lowercase.
-  // Check known possible casings.
   return Boolean(
     (profile as Record<string, boolean>).haspaidentry ??
     (profile as Record<string, boolean>).hasPaidEntry ??
@@ -28,16 +27,16 @@ export default async function PaymentPendingPage() {
       .eq("id", user.id)
       .maybeSingle();
 
-    // Debug: log actual column names and values
     if (profile) {
       console.log("Users row keys:", Object.keys(profile));
-      console.log("Users row:", JSON.stringify(profile));
     }
     if (error) {
       console.error("Users query error:", error);
     }
 
     if (getHasPaidEntry(profile)) {
+      // Cache verification so subsequent visits skip DB checks
+      await setVerificationCookie();
       redirect("/portal");
     }
   }
