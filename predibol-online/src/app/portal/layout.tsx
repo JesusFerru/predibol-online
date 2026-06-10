@@ -2,6 +2,15 @@ import { Shell } from "@/components/layout/shell";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
+function getHasPaidEntry(profile: Record<string, unknown> | null): boolean {
+  if (!profile) return false;
+  return Boolean(
+    (profile as Record<string, boolean>).haspaidentry ??
+    (profile as Record<string, boolean>).hasPaidEntry ??
+    false,
+  );
+}
+
 export default async function PortalLayout({
   children,
 }: {
@@ -32,11 +41,11 @@ export default async function PortalLayout({
   // Check payment status
   const { data: profile } = await supabase
     .from("users")
-    .select("haspaidentry")
+    .select("*")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
-  if (!profile || !profile.haspaidentry) {
+  if (!getHasPaidEntry(profile)) {
     redirect("/payment-pending");
   }
 

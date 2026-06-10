@@ -3,6 +3,17 @@ import { createClient } from "@/lib/supabase/server";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 
+function getHasPaidEntry(profile: Record<string, unknown> | null): boolean {
+  if (!profile) return false;
+  // PostgreSQL folds unquoted identifiers to lowercase.
+  // Check known possible casings.
+  return Boolean(
+    (profile as Record<string, boolean>).haspaidentry ??
+    (profile as Record<string, boolean>).hasPaidEntry ??
+    false,
+  );
+}
+
 export default async function PaymentPendingPage() {
   const supabase = await createClient();
   const {
@@ -11,13 +22,22 @@ export default async function PaymentPendingPage() {
 
   // If user is authenticated, check if payment has been completed since last redirect
   if (user) {
-    const { data: profile } = await supabase
+    const { data: profile, error } = await supabase
       .from("users")
-      .select("haspaidentry")
+      .select("*")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
-    if (profile?.haspaidentry) {
+    // Debug: log actual column names and values
+    if (profile) {
+      console.log("Users row keys:", Object.keys(profile));
+      console.log("Users row:", JSON.stringify(profile));
+    }
+    if (error) {
+      console.error("Users query error:", error);
+    }
+
+    if (getHasPaidEntry(profile)) {
       redirect("/portal");
     }
   }
