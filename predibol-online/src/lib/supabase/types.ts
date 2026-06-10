@@ -15,11 +15,11 @@ export interface UserRow {
   email: string;
   name: string;
   alias: string;
-  phoneNumber: string | null;
-  hasPaidEntry: boolean;
-  availablePoolCredits: number;
-  isAdmin: boolean;
-  createdAt: string;
+  phonenumber: string | null;
+  haspaidentry: boolean;
+  availablepoolcredits: number;
+  isadmin: boolean;
+  createdat: string;
 }
 
 export interface MatchResultRow {

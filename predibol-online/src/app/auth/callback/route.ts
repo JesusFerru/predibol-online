@@ -42,25 +42,25 @@ export async function GET(request: Request) {
 
   // Authorization succeeded: check whether a Users record already exists
   const { data: existingUser } = await supabase
-    .from("Users")
+    .from("users")
     .select("id")
     .eq("id", user.id)
     .single();
 
   if (!existingUser) {
-    // Auto-provision Users record from authorized_users data
-    const { error: insertError } = await supabase.from("Users").insert({
+    // Auto-provision users record from authorized_users data
+    const { error: insertError } = await supabase.from("users").insert({
       id: user.id,
       email: authUser.email,
       name: authUser.name,
       alias: authUser.alias,
-      isAdmin: authUser.is_admin,
+      isadmin: authUser.is_admin,
     });
 
     if (insertError) {
       // The trigger may have already created the record — log and continue
       console.error(
-        "Failed to auto-provision Users record:",
+        "Failed to auto-provision users record:",
         insertError.message,
       );
     }

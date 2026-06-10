@@ -31,12 +31,12 @@ export default async function PortalLayout({
 
   // Check payment status
   const { data: profile } = await supabase
-    .from("Users")
-    .select("hasPaidEntry")
+    .from("users")
+    .select("haspaidentry")
     .eq("id", user.id)
     .single();
 
-  if (!profile || !profile.hasPaidEntry) {
+  if (!profile || !profile.haspaidentry) {
     redirect("/payment-pending");
   }
 

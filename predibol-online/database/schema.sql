@@ -376,7 +376,7 @@ BEGIN
       AND active = TRUE;
 
     IF FOUND THEN
-        INSERT INTO public.Users (id, email, name, alias, "hasPaidEntry", "isAdmin")
+        INSERT INTO public.users (id, email, name, alias, haspaidentry, isadmin)
         VALUES (
             NEW.id,
             auth_user.email,

@@ -8,13 +8,13 @@ export default async function PortalPage() {
   } = await supabase.auth.getUser();
 
   const { data: profile } = await supabase
-    .from("Users")
-    .select("name, alias, availablePoolCredits")
+    .from("users")
+    .select("name, alias, availablepoolcredits")
     .eq("id", user!.id)
     .single();
 
   const { data: ranking } = await supabase
-    .from("TournamentRanking")
+    .from("tournamentranking")
     .select("points")
     .eq("userId", user!.id)
     .single();
@@ -49,7 +49,7 @@ export default async function PortalPage() {
             <p className="mt-1 text-sm text-gray-600">
               Available pool credits:{" "}
               <span className="font-semibold text-crimson">
-                {profile.availablePoolCredits}
+                {profile.availablepoolcredits}
               </span>
             </p>
           )}
@@ -61,7 +61,7 @@ export default async function PortalPage() {
         userName={profile?.name ?? "Player"}
         userAlias={profile?.alias}
         userEmail={user!.email!}
-        credits={profile?.availablePoolCredits ?? 0}
+        credits={profile?.availablepoolcredits ?? 0}
         points={ranking?.points ?? 0}
       />
     </div>

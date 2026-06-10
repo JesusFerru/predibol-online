@@ -26,7 +26,7 @@ export default async function LoginPage() {
 
       <div className="relative z-10 flex flex-col items-center gap-8 rounded-2xl border border-white/10 bg-black/40 px-10 py-12 shadow-2xl backdrop-blur-md">
         <Image
-          src="/assets/images/logo/predibol-logo-blanco.png"
+          src="/assets/images/logo/predibol-logotipo-inverso.png"
           alt="Predibol"
           width={180}
           height={60}
