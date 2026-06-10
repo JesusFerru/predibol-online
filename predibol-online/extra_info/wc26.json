@@ -16,6 +16,38 @@
     ],
     "id": "wc2026",
     "matches": [
+          {
+    "allowDraw": true,
+    "date": "2026-06-10",
+    "goalsTeam1": null,
+    "goalsTeam2": null,
+    "ground": "Mexico City",
+    "group": "Group A",
+    "id": 201,
+    "round": "Matchday 1",
+    "status": "SCHEDULED",
+    "team1": "Mexico",
+    "team2": "South Africa",
+    "time": "15:00 UTC-4",
+    "winnerTeamCountryCode": null,
+    "winnerTeamNumber": null
+  },
+  {
+    "allowDraw": true,
+    "date": "2026-06-10",
+    "goalsTeam1": null,
+    "goalsTeam2": null,
+    "ground": "Guadalajara",
+    "group": "Group A",
+    "id": 202,
+    "round": "Matchday 1",
+    "status": "SCHEDULED",
+    "team1": "South Korea",
+    "team2": "Czech Republic",
+    "time": "22:00 UTC-4",
+    "winnerTeamCountryCode": null,
+    "winnerTeamNumber": null
+  },
         {
             "allowDraw": true,
             "date": "2026-06-11",
