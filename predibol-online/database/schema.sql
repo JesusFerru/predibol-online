@@ -362,27 +362,34 @@ CREATE POLICY "Authenticated users can read own authorized record"
 -- =====================================================
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER
+RETURNS trigger
 LANGUAGE plpgsql
-SECURITY DEFINER SET search_path = ''
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     auth_user public.authorized_users%ROWTYPE;
 BEGIN
-    -- Only create a Users record if the email is whitelisted and active
     SELECT * INTO auth_user
     FROM public.authorized_users
     WHERE email = NEW.email
       AND active = TRUE;
 
     IF FOUND THEN
-        INSERT INTO public.users (id, email, name, alias, haspaidentry, isadmin)
+        INSERT INTO public.users (
+            id,
+            email,
+            name,
+            alias,
+            "haspaidentry",
+            "isadmin"
+        )
         VALUES (
             NEW.id,
             auth_user.email,
             auth_user.name,
             auth_user.alias,
-            FALSE,  -- Default: payment pending
+            FALSE,
             auth_user.is_admin
         );
     END IF;
