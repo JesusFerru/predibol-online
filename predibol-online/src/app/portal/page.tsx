@@ -3,13 +3,8 @@ import {
   PredictionList,
   type MatchWithBet,
 } from "@/components/predictions/prediction-list";
+import { getEnrichedMatches } from "@/lib/data/matches";
 import { createClient } from "@/lib/supabase/server";
-
-interface DayGroup {
-  dateLabel: string;
-  dateKey: string;
-  matches: MatchWithBet[];
-}
 
 export default async function PortalPage() {
   const supabase = await createClient();
@@ -30,20 +25,20 @@ export default async function PortalPage() {
     .eq("userId", user!.id)
     .single();
 
-  // Fetch all matches
-  const { data: matches } = await supabase
-    .from("matchresults")
-    .select("matchid, team1, team2, scheduleat, matchstatus")
-    .order("scheduleat", { ascending: true });
+  // Fetch all matches from JSON data (development data source)
+  const enrichedMatches = getEnrichedMatches();
 
-  // Fetch user's existing bets
+  // Fetch user's existing bets from Supabase
   const { data: bets } = await supabase
     .from("matchbets")
     .select("matchid, betgoalteam1, betgoalteam2")
     .eq("userid", user!.id);
 
   // Build a lookup map of matchId -> bet
-  const betByMatch = new Map<string, { betgoalteam1: number; betgoalteam2: number }>();
+  const betByMatch = new Map<
+    string,
+    { betgoalteam1: number; betgoalteam2: number }
+  >();
   if (bets) {
     for (const bet of bets) {
       betByMatch.set(bet.matchid, {
@@ -55,21 +50,25 @@ export default async function PortalPage() {
 
   // Compute lock status and build match objects
   const now = new Date();
-  const matchList: MatchWithBet[] = (matches ?? []).map((match) => {
-    let isLocked = false;
-    if (match.scheduleat) {
-      const kickoff = new Date(match.scheduleat);
-      const deadline = new Date(kickoff.getTime() - 10 * 60 * 1000);
-      isLocked = now >= deadline;
-    }
+  const matchList: MatchWithBet[] = enrichedMatches.map((m) => {
+    const kickoff = new Date(m.scheduleAt);
+    const deadline = new Date(kickoff.getTime() - 10 * 60 * 1000);
+    const isLocked = now >= deadline;
 
     return {
-      matchid: match.matchid,
-      team1: match.team1,
-      team2: match.team2,
-      scheduleat: match.scheduleat,
-      matchstatus: match.matchstatus,
-      existingBet: betByMatch.get(match.matchid) ?? null,
+      matchId: m.matchId,
+      team1: m.team1,
+      team2: m.team2,
+      team1Flag: m.team1Flag,
+      team2Flag: m.team2Flag,
+      team1Code: m.team1Code,
+      team2Code: m.team2Code,
+      scheduleAt: m.scheduleAt,
+      matchStatus: m.matchStatus,
+      group: m.group,
+      round: m.round,
+      ground: m.ground,
+      existingBet: betByMatch.get(m.matchId) ?? null,
       isLocked,
     };
   });
@@ -77,8 +76,8 @@ export default async function PortalPage() {
   // Group matches by date
   const groupMap = new Map<string, MatchWithBet[]>();
   for (const m of matchList) {
-    const dateKey = m.scheduleat
-      ? new Date(m.scheduleat).toISOString().slice(0, 10)
+    const dateKey = m.scheduleAt
+      ? new Date(m.scheduleAt).toISOString().slice(0, 10)
       : "unknown";
     const existing = groupMap.get(dateKey);
     if (existing) {
@@ -88,10 +87,10 @@ export default async function PortalPage() {
     }
   }
 
-  const dayGroups: DayGroup[] = Array.from(groupMap.entries()).map(
+  const dayGroups = Array.from(groupMap.entries()).map(
     ([dateKey, matches]) => {
-      const dateLabel = matches[0]?.scheduleat
-        ? new Date(matches[0].scheduleat).toLocaleDateString("es-BO", {
+      const dateLabel = matches[0]?.scheduleAt
+        ? new Date(matches[0].scheduleAt).toLocaleDateString("es-BO", {
             weekday: "short",
             day: "numeric",
             month: "short",

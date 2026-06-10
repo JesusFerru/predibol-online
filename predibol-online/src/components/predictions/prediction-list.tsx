@@ -2,19 +2,9 @@
 
 import { useState, useMemo } from "react";
 import { PredictionCard } from "./prediction-card";
+import type { PredictionCardProps } from "./prediction-card";
 
-export interface MatchWithBet {
-  matchid: string;
-  team1: string;
-  team2: string;
-  scheduleat: string | null;
-  matchstatus: string;
-  existingBet: {
-    betgoalteam1: number;
-    betgoalteam2: number;
-  } | null;
-  isLocked: boolean;
-}
+export type MatchWithBet = PredictionCardProps;
 
 interface DayGroup {
   dateLabel: string;
@@ -33,7 +23,6 @@ export function PredictionList({ dayGroups }: PredictionListProps) {
   }, []);
 
   const defaultIndex = useMemo(() => {
-    // Default to today if it has matches, otherwise the first upcoming day
     const todayIdx = dayGroups.findIndex((g) => g.dateKey === todayKey);
     if (todayIdx !== -1) return todayIdx;
 
@@ -102,12 +91,19 @@ export function PredictionList({ dayGroups }: PredictionListProps) {
         <div className="grid gap-4 sm:grid-cols-2">
           {selectedGroup.matches.map((match) => (
             <PredictionCard
-              key={match.matchid}
-              matchId={match.matchid}
+              key={match.matchId}
+              matchId={match.matchId}
               team1={match.team1}
               team2={match.team2}
-              scheduleAt={match.scheduleat}
-              matchStatus={match.matchstatus}
+              team1Flag={match.team1Flag}
+              team2Flag={match.team2Flag}
+              team1Code={match.team1Code}
+              team2Code={match.team2Code}
+              scheduleAt={match.scheduleAt}
+              matchStatus={match.matchStatus}
+              group={match.group}
+              round={match.round}
+              ground={match.ground}
               existingBet={match.existingBet}
               isLocked={match.isLocked}
             />

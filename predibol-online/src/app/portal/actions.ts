@@ -1,5 +1,6 @@
 "use server";
 
+import { getJsonMatchById } from "@/lib/data/matches";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
@@ -36,34 +37,49 @@ export async function savePrediction(
     return { success: false, error: "Goals must be a whole number between 0 and 30." };
   }
 
-  // Fetch match to validate it exists, is pending, and deadline hasn't passed
-  const { data: match, error: matchError } = await supabase
+  // ── Match validation: Supabase first, JSON fallback ──
+
+  let matchStatus = "PENDING";
+  let scheduleAt: string | null = null;
+
+  // Try Supabase first
+  const { data: dbMatch } = await supabase
     .from("matchresults")
     .select("matchid, matchstatus, scheduleat")
     .eq("matchid", matchId)
-    .single();
+    .maybeSingle();
 
-  if (matchError || !match) {
-    return { success: false, error: "Match not found." };
+  if (dbMatch) {
+    matchStatus = dbMatch.matchstatus;
+    scheduleAt = dbMatch.scheduleat;
+  } else {
+    // Fallback to JSON data for development
+    const jsonMatch = getJsonMatchById(matchId);
+    if (!jsonMatch) {
+      return { success: false, error: "Match not found." };
+    }
+    matchStatus = jsonMatch.matchStatus;
+    scheduleAt = jsonMatch.scheduleAt;
   }
 
-  if (match.matchstatus !== "PENDING") {
+  if (matchStatus !== "PENDING") {
     return { success: false, error: "This match is no longer open for predictions." };
   }
 
-  if (!match.scheduleat) {
+  if (!scheduleAt) {
     return { success: false, error: "Match schedule is not available." };
   }
 
-  // Enforce deadline: 10 minutes before kickoff
-  const kickoff = new Date(match.scheduleat);
+  // Enforce deadline: 10 minutes before kickoff (America/La_Paz, UTC-4)
+  const kickoff = new Date(scheduleAt);
   const deadline = new Date(kickoff.getTime() - 10 * 60 * 1000);
 
   if (new Date() >= deadline) {
     return { success: false, error: "The prediction deadline for this match has passed." };
   }
 
-  // Upsert: check if a prediction already exists for this user + match
+  // ── Upsert prediction ──
+
   const { data: existing } = await supabase
     .from("matchbets")
     .select("id")
@@ -97,6 +113,13 @@ export async function savePrediction(
       });
 
     if (insertError) {
+      // FK constraint: match not in database yet; matches must be imported first
+      if (insertError.code === "23503") {
+        return {
+          success: false,
+          error: "Match data has not been imported yet. Please try again soon.",
+        };
+      }
       return { success: false, error: "Failed to save prediction. Please try again." };
     }
   }

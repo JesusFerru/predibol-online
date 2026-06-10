@@ -8,12 +8,19 @@ interface ExistingBet {
   betgoalteam2: number;
 }
 
-interface PredictionCardProps {
+export interface PredictionCardProps {
   matchId: string;
   team1: string;
   team2: string;
+  team1Flag: string;
+  team2Flag: string;
+  team1Code: string;
+  team2Code: string;
   scheduleAt: string | null;
   matchStatus: string;
+  group: string;
+  round: string;
+  ground: string;
   existingBet: ExistingBet | null;
   isLocked: boolean;
 }
@@ -22,8 +29,15 @@ export function PredictionCard({
   matchId,
   team1,
   team2,
+  team1Flag,
+  team2Flag,
+  team1Code,
+  team2Code,
   scheduleAt,
   matchStatus,
+  group,
+  round,
+  ground,
   existingBet,
   isLocked,
 }: PredictionCardProps) {
@@ -43,8 +57,7 @@ export function PredictionCard({
     goal1 !== (existingBet?.betgoalteam1 ?? "") ||
     goal2 !== (existingBet?.betgoalteam2 ?? "");
 
-  const bothFilled =
-    goal1 !== "" && goal2 !== "";
+  const bothFilled = goal1 !== "" && goal2 !== "";
 
   const canSave = bothFilled && hasChanges && !isLocked && !isPending;
 
@@ -62,7 +75,6 @@ export function PredictionCard({
           : (result.error ?? "Something went wrong."),
       });
       if (!result.success) {
-        // Reset to last saved values on error
         setGoal1(existingBet?.betgoalteam1 ?? "");
         setGoal2(existingBet?.betgoalteam2 ?? "");
       }
@@ -79,175 +91,183 @@ export function PredictionCard({
     });
   }
 
-  function formatDate(isoString: string | null): string {
-    if (!isoString) return "";
-    const date = new Date(isoString);
-    return date.toLocaleDateString("es-BO", {
-      weekday: "short",
-      day: "numeric",
-      month: "short",
-      timeZone: "America/La_Paz",
-    });
-  }
-
   const isFinished = matchStatus === "FINISHED";
   const isCanceled = matchStatus === "CANCELED";
   const isReadOnly = isLocked || isFinished || isCanceled;
 
+  const hasFlags = team1Flag !== "" && team2Flag !== "";
+
   return (
     <div
-      className={`rounded-xl border-2 bg-white p-4 shadow-sm transition-shadow hover:shadow-md ${
+      className={`relative rounded-xl border-2 bg-white shadow-sm transition-shadow hover:shadow-md ${
         isLocked && !isFinished
-          ? "border-amber-300 bg-amber-50/30"
+          ? "border-amber-300 bg-amber-50/20"
           : isFinished
-            ? "border-gray-200 bg-gray-50/50"
+            ? "border-gray-200 bg-gray-50/40"
             : isCanceled
-              ? "border-red-200 bg-red-50/30"
-              : "border-gray-200"
+              ? "border-red-200 bg-red-50/20"
+              : "border-gray-100"
       }`}
     >
-      {/* Header: time + status badge */}
-      <div className="mb-3 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm text-gray-500">
-          <svg
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <span>{formatTime(scheduleAt)}</span>
-          <span className="hidden sm:inline">· {formatDate(scheduleAt)}</span>
+      {/* ── Top bar: group badge + stadium + time ── */}
+      <div className="flex items-center justify-between gap-2 border-b border-gray-100 px-4 py-2">
+        <div className="flex items-center gap-2 min-w-0">
+          {group && (
+            <span className="shrink-0 rounded-full bg-crimson/10 px-2 py-0.5 text-[11px] font-semibold text-crimson">
+              {group}
+            </span>
+          )}
+          {round && !group && (
+            <span className="shrink-0 rounded-full bg-crimson/10 px-2 py-0.5 text-[11px] font-semibold text-crimson">
+              {round}
+            </span>
+          )}
+          <span className="truncate text-xs text-gray-400">
+            {ground}{" · "}
+            {formatTime(scheduleAt)}
+          </span>
         </div>
 
+        {/* Status badge */}
         {isLocked && !isFinished && (
-          <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+          <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
             Locked
           </span>
         )}
         {isFinished && (
-          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+          <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-500">
             Finished
           </span>
         )}
         {isCanceled && (
-          <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
+          <span className="shrink-0 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold text-red-600">
             Canceled
           </span>
         )}
       </div>
 
-      {/* Teams + Score inputs */}
-      <div className="flex items-center justify-between gap-3">
-        {/* Team 1 */}
-        <div className="flex flex-1 flex-col items-center gap-1 text-center">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-crimson/10 text-sm font-bold text-crimson">
-            {team1.slice(0, 3).toUpperCase()}
+      {/* ── Body: flags + names + inputs ── */}
+      <div className="p-4">
+        <div className="flex items-center gap-2">
+          {/* ── Team 1 ── */}
+          <div className="flex flex-1 flex-col items-center gap-1.5 text-center">
+            <span className="text-3xl leading-none" aria-hidden>
+              {hasFlags ? team1Flag : team1Code}
+            </span>
+            <span className="text-xs font-semibold text-gray-800 leading-tight line-clamp-2">
+              {team1}
+            </span>
+            <input
+              type="number"
+              min={0}
+              max={30}
+              value={goal1}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v === "") {
+                  setGoal1("");
+                  return;
+                }
+                const n = Number.parseInt(v, 10);
+                if (!Number.isNaN(n) && n >= 0 && n <= 30) {
+                  setGoal1(n);
+                }
+              }}
+              disabled={isReadOnly || isPending}
+              className={`mt-0.5 w-14 rounded-lg border px-1.5 py-1 text-center text-lg font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-crimson/40 ${
+                isReadOnly
+                  ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400"
+                  : "border-gray-300 bg-white text-gray-900 hover:border-crimson/30"
+              }`}
+              aria-label={`Goals for ${team1}`}
+            />
           </div>
-          <span className="text-sm font-medium text-gray-900 leading-tight">
-            {team1}
-          </span>
-          <input
-            type="number"
-            min={0}
-            max={30}
-            value={goal1}
-            onChange={(e) => {
-              const v = e.target.value;
-              if (v === "") {
-                setGoal1("");
-                return;
-              }
-              const n = Number.parseInt(v, 10);
-              if (!Number.isNaN(n) && n >= 0 && n <= 30) {
-                setGoal1(n);
-              }
-            }}
-            disabled={isReadOnly || isPending}
-            className={`mt-1 w-16 rounded-lg border px-2 py-1.5 text-center text-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-crimson/50 ${
-              isReadOnly
-                ? "border-gray-200 bg-gray-100 text-gray-500 cursor-not-allowed"
-                : "border-gray-300 bg-white text-gray-900 hover:border-crimson/30"
-            }`}
-            aria-label={`Goals for ${team1}`}
-          />
+
+          {/* ── VS ── */}
+          <div className="flex flex-col items-center gap-1 pt-1">
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-gray-300">
+              VS
+            </span>
+            {!hasFlags && (
+              <span className="text-[10px] font-medium text-gray-400">
+                {team1Code} – {team2Code}
+              </span>
+            )}
+          </div>
+
+          {/* ── Team 2 ── */}
+          <div className="flex flex-1 flex-col items-center gap-1.5 text-center">
+            <span className="text-3xl leading-none" aria-hidden>
+              {hasFlags ? team2Flag : team2Code}
+            </span>
+            <span className="text-xs font-semibold text-gray-800 leading-tight line-clamp-2">
+              {team2}
+            </span>
+            <input
+              type="number"
+              min={0}
+              max={30}
+              value={goal2}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v === "") {
+                  setGoal2("");
+                  return;
+                }
+                const n = Number.parseInt(v, 10);
+                if (!Number.isNaN(n) && n >= 0 && n <= 30) {
+                  setGoal2(n);
+                }
+              }}
+              disabled={isReadOnly || isPending}
+              className={`mt-0.5 w-14 rounded-lg border px-1.5 py-1 text-center text-lg font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-crimson/40 ${
+                isReadOnly
+                  ? "cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400"
+                  : "border-gray-300 bg-white text-gray-900 hover:border-crimson/30"
+              }`}
+              aria-label={`Goals for ${team2}`}
+            />
+          </div>
         </div>
 
-        {/* VS */}
-        <div className="flex flex-col items-center gap-1 pt-2">
-          <span className="text-xs font-bold text-gray-400 uppercase">VS</span>
-          {isFinished && existingBet && (
-            <span className="text-xs text-gray-500">
-              {existingBet.betgoalteam1} - {existingBet.betgoalteam2}
+        {/* ── Save button & feedback ── */}
+        <div className="mt-3 flex items-center justify-center gap-3">
+          {feedback && (
+            <span
+              className={`text-xs font-medium ${
+                feedback.type === "success" ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {feedback.message}
             </span>
+          )}
+
+          {!isReadOnly && (
+            <button
+              onClick={handleSave}
+              disabled={!canSave}
+              className={`rounded-lg px-4 py-1.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-crimson/40 ${
+                canSave
+                  ? "bg-crimson text-white hover:bg-crimson/90 active:bg-wine"
+                  : "cursor-not-allowed bg-gray-200 text-gray-400"
+              }`}
+            >
+              {isPending ? "Saving..." : "Save"}
+            </button>
           )}
         </div>
 
-        {/* Team 2 */}
-        <div className="flex flex-1 flex-col items-center gap-1 text-center">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-crimson/10 text-sm font-bold text-crimson">
-            {team2.slice(0, 3).toUpperCase()}
-          </div>
-          <span className="text-sm font-medium text-gray-900 leading-tight">
-            {team2}
-          </span>
-          <input
-            type="number"
-            min={0}
-            max={30}
-            value={goal2}
-            onChange={(e) => {
-              const v = e.target.value;
-              if (v === "") {
-                setGoal2("");
-                return;
-              }
-              const n = Number.parseInt(v, 10);
-              if (!Number.isNaN(n) && n >= 0 && n <= 30) {
-                setGoal2(n);
-              }
-            }}
-            disabled={isReadOnly || isPending}
-            className={`mt-1 w-16 rounded-lg border px-2 py-1.5 text-center text-lg font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-crimson/50 ${
-              isReadOnly
-                ? "border-gray-200 bg-gray-100 text-gray-500 cursor-not-allowed"
-                : "border-gray-300 bg-white text-gray-900 hover:border-crimson/30"
-            }`}
-            aria-label={`Goals for ${team2}`}
-          />
-        </div>
-      </div>
-
-      {/* Save button & feedback */}
-      <div className="mt-4 flex items-center justify-end gap-3">
-        {feedback && (
-          <span
-            className={`text-sm ${
-              feedback.type === "success" ? "text-green-600" : "text-red-600"
-            }`}
-          >
-            {feedback.message}
-          </span>
+        {/* ── Locked explanation ── */}
+        {isLocked && !isFinished && existingBet && (
+          <p className="mt-2 text-center text-[11px] text-amber-600">
+            Saved: {existingBet.betgoalteam1} – {existingBet.betgoalteam2}
+            {" · "}Deadline passed, predictions are locked.
+          </p>
         )}
-
-        {!isReadOnly && (
-          <button
-            onClick={handleSave}
-            disabled={!canSave}
-            className={`rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-crimson/50 ${
-              canSave
-                ? "bg-crimson text-white hover:bg-crimson/90 active:bg-wine"
-                : "cursor-not-allowed bg-gray-200 text-gray-400"
-            }`}
-          >
-            {isPending ? "Saving..." : "Save"}
-          </button>
+        {isLocked && !isFinished && !existingBet && (
+          <p className="mt-2 text-center text-[11px] text-amber-600">
+            Deadline passed. No prediction was saved.
+          </p>
         )}
       </div>
     </div>
