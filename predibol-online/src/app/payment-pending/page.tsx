@@ -1,6 +1,27 @@
+import { VerifyPaymentButton } from "@/components/auth/verify-payment-button";
+import { createClient } from "@/lib/supabase/server";
 import Image from "next/image";
+import { redirect } from "next/navigation";
 
-export default function PaymentPendingPage() {
+export default async function PaymentPendingPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // If user is authenticated, check if payment has been completed since last redirect
+  if (user) {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("haspaidentry")
+      .eq("id", user.id)
+      .single();
+
+    if (profile?.haspaidentry) {
+      redirect("/portal");
+    }
+  }
+
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center">
       <Image
@@ -27,6 +48,8 @@ export default function PaymentPendingPage() {
           You are not authorized to submit predictions. Please contact the
           administrator.
         </p>
+
+        <VerifyPaymentButton />
       </div>
     </div>
   );
