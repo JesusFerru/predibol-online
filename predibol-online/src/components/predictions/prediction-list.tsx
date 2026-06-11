@@ -17,24 +17,39 @@ interface PredictionListProps {
 }
 
 export function PredictionList({ dayGroups }: PredictionListProps) {
+  // Sort dayGroups chronologically (defensive; server also sorts)
+  const sortedGroups = useMemo(() => {
+    return [...dayGroups].sort((a, b) =>
+      a.dateKey.localeCompare(b.dateKey),
+    );
+  }, [dayGroups]);
+
   const todayKey = useMemo(() => {
-    const d = new Date();
-    return d.toISOString().slice(0, 10);
+    // Bolivia timezone, YYYY-MM-DD (same format as dayGroup.dateKey)
+    return new Date().toLocaleDateString("en-CA", {
+      timeZone: "America/La_Paz",
+    });
   }, []);
 
   const defaultIndex = useMemo(() => {
-    const todayIdx = dayGroups.findIndex((g) => g.dateKey === todayKey);
+    if (sortedGroups.length === 0) return 0;
+    const todayIdx = sortedGroups.findIndex((g) => g.dateKey === todayKey);
     if (todayIdx !== -1) return todayIdx;
-
-    const upcomingIdx = dayGroups.findIndex((g) => g.dateKey >= todayKey);
+    const upcomingIdx = sortedGroups.findIndex((g) => g.dateKey >= todayKey);
     return upcomingIdx !== -1 ? upcomingIdx : 0;
-  }, [dayGroups, todayKey]);
+  }, [sortedGroups, todayKey]);
 
   const [selectedIndex, setSelectedIndex] = useState(defaultIndex);
 
-  const selectedGroup = dayGroups[selectedIndex];
+  // Clamp selectedIndex to valid bounds (handles dayGroups changes)
+  const safeIndex =
+    sortedGroups.length > 0
+      ? Math.min(Math.max(selectedIndex, 0), sortedGroups.length - 1)
+      : 0;
 
-  if (dayGroups.length === 0) {
+  const selectedGroup = sortedGroups[safeIndex] ?? null;
+
+  if (sortedGroups.length === 0) {
     return (
       <div className="mx-auto max-w-lg px-4 py-16 text-center">
         <div className="mb-4 flex justify-center">
@@ -67,12 +82,12 @@ export function PredictionList({ dayGroups }: PredictionListProps) {
       {/* Day selector tabs */}
       <div className="mb-6 overflow-x-auto">
         <div className="flex gap-1 border-b border-gray-200 pb-1">
-          {dayGroups.map((group, idx) => (
+          {sortedGroups.map((group, idx) => (
             <button
               key={group.dateKey}
               onClick={() => setSelectedIndex(idx)}
               className={`whitespace-nowrap rounded-t-md px-3 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-crimson/30 ${
-                idx === selectedIndex
+                idx === safeIndex
                   ? "border-b-2 border-crimson bg-crimson/5 text-crimson"
                   : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
               }`}
@@ -89,9 +104,9 @@ export function PredictionList({ dayGroups }: PredictionListProps) {
       {/* Match cards for selected day */}
       {selectedGroup ? (
         <div className="grid gap-4 sm:grid-cols-2">
-          {selectedGroup.matches.map((match) => (
+          {selectedGroup.matches.map((match, i) => (
             <PredictionCard
-              key={match.matchId}
+              key={`${selectedGroup.dateKey}-${match.matchId}-${i}`}
               matchId={match.matchId}
               team1={match.team1}
               team2={match.team2}

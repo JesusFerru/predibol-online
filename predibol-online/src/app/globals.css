@@ -20,3 +20,47 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans, Arial, Helvetica, sans-serif);
 }
+
+/* ── FAQ accordion answer styling ── */
+.faq-answer table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+  margin: 0.75rem 0;
+}
+
+.faq-answer table th {
+  background: rgb(205 1 0 / 0.06);
+  font-weight: 600;
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 2px solid rgb(205 1 0 / 0.2);
+}
+
+.faq-answer table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: top;
+}
+
+.faq-answer table tr:last-child td {
+  border-bottom: none;
+}
+
+.faq-answer ol,
+.faq-answer ul {
+  padding-left: 1.25rem;
+  margin: 0.5rem 0;
+}
+
+.faq-answer li {
+  margin-bottom: 0.25rem;
+}
+
+.faq-answer p {
+  margin: 0.5rem 0;
+}
+
+.faq-answer strong {
+  color: #374151;
+}

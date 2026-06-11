@@ -65,22 +65,6 @@
             "winnerTeamNumber": null
         },
         {
-    "allowDraw": true,
-    "date": "2026-06-10",
-    "goalsTeam1": null,
-    "goalsTeam2": null,
-    "ground": "Mexico City",
-    "group": "Group A",
-    "id": 201,
-    "round": "Matchday 1",
-    "status": "SCHEDULED",
-    "team1": "Mexico",
-    "team2": "South Africa",
-    "time": "15:00 UTC-4",
-    "winnerTeamCountryCode": null,
-    "winnerTeamNumber": null
-  },
-        {
             "allowDraw": true,
             "date": "2026-06-11",
             "goalsTeam1": null,

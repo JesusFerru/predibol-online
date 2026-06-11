@@ -9,3 +9,11 @@
 - /assets/teams/{team-code}.png - Larger team badge/logo
   - Used in: PredictionCard component
   - Page: /portal
+
+## Help page — FAQ illustrations
+- /assets/images/help/help-podium-prediction.png - Modal de predicción del podio con selectores de 1er, 2do y 3er lugar
+  - Used in: FaqAccordion component (question "¿Cómo funciona la predicción del podio del mundial?")
+  - Page: /help
+- /assets/images/help/help-daily-pool.png - Tarjeta del Partido del Día destacada con borde dorado y controles de poza diaria
+  - Used in: FaqAccordion component (question "¿Cómo funciona la poza diaria?")
+  - Page: /help

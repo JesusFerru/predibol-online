@@ -73,12 +73,18 @@ export default async function PortalPage() {
     };
   });
 
-  // Group matches by date
+  // Extract Bolivia-date key from an ISO UTC timestamp.
+  // en-CA locale reliably produces YYYY-MM-DD format.
+  function boliviaDateKey(iso: string): string {
+    return new Date(iso).toLocaleDateString("en-CA", {
+      timeZone: "America/La_Paz",
+    });
+  }
+
+  // Group matches by date (America/La_Paz timezone)
   const groupMap = new Map<string, MatchWithBet[]>();
   for (const m of matchList) {
-    const dateKey = m.scheduleAt
-      ? new Date(m.scheduleAt).toISOString().slice(0, 10)
-      : "unknown";
+    const dateKey = m.scheduleAt ? boliviaDateKey(m.scheduleAt) : "unknown";
     const existing = groupMap.get(dateKey);
     if (existing) {
       existing.push(m);
@@ -87,8 +93,8 @@ export default async function PortalPage() {
     }
   }
 
-  const dayGroups = Array.from(groupMap.entries()).map(
-    ([dateKey, matches]) => {
+  const dayGroups = Array.from(groupMap.entries())
+    .map(([dateKey, matches]) => {
       const dateLabel = matches[0]?.scheduleAt
         ? new Date(matches[0].scheduleAt).toLocaleDateString("es-BO", {
             weekday: "short",
@@ -99,8 +105,8 @@ export default async function PortalPage() {
         : "Unknown";
 
       return { dateKey, dateLabel, matches };
-    },
-  );
+    })
+    .sort((a, b) => a.dateKey.localeCompare(b.dateKey));
 
   return (
     <div className="relative min-h-[calc(100vh-3.5rem)]">
