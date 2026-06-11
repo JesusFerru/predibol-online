@@ -78,6 +78,13 @@ export function ProfileDrawer({
           {/* Quick actions */}
           <nav className="flex flex-col gap-1">
             <Link
+              href="/ranking"
+              onClick={onClose}
+              className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
+            >
+              Ranking
+            </Link>
+            <Link
               href="/rules"
               onClick={onClose}
               className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"

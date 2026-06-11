@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed-matches": "tsx --env-file=.env.local scripts/seed-matches.ts"
+    "seed-matches": "tsx --env-file=.env.local scripts/seed-matches.ts",
+    "calculate-ranking": "tsx --env-file=.env.local scripts/calculate-ranking.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",
