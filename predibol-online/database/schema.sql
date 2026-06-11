@@ -4,6 +4,7 @@ CREATE TABLE public.authorized_users (
     name TEXT NOT NULL,
     alias TEXT UNIQUE NOT NULL,
     is_admin BOOLEAN NOT NULL DEFAULT FALSE,
+     phoneNumber TEXT,
     active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

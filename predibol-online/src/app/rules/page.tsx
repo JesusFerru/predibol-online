@@ -1,6 +1,7 @@
 import { Shell } from "@/components/layout/shell";
 import fs from "fs";import path from "path";
 import ReactMarkdown from "react-markdown";
+import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 
 async function getRulesContent(): Promise<string> {
@@ -24,7 +25,7 @@ export default async function RulesPage() {
       <div className="mx-auto max-w-3xl px-4 py-12">
         {/* Usas 'prose' de Tailwind Typography, lo cual es excelente para dar estilo automático al HTML generado */}
         <article className="prose prose-gray max-w-none">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+         <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
             {content}
           </ReactMarkdown>
         </article>

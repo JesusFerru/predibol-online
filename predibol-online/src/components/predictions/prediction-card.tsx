@@ -2,6 +2,8 @@
 
 import { savePrediction } from "@/app/portal/actions";
 import { useState, useTransition } from "react";
+import Image from "next/image";
+import { fifaToIsoMap } from "@/lib/data/countries";
 
 interface ExistingBet {
   betgoalteam1: number;
@@ -23,6 +25,52 @@ export interface PredictionCardProps {
   ground: string;
   existingBet: ExistingBet | null;
   isLocked: boolean;
+}
+
+/**
+ * Renders a flag using flagcdn.com as the primary source,
+ * mapping 3-letter FIFA codes to 2-letter ISO codes.
+ * Fallbacks to emoji if the image fails to load.
+ */
+function TeamFlag({
+  fifaCode,
+  emoji,
+  teamName,
+}: {
+  fifaCode: string;
+  emoji: string;
+  teamName: string;
+}) {
+  const [error, setError] = useState(false);
+
+  // Intentamos obtener el código ISO desde el mapeo (ej: 'MEX' -> 'mx').
+  // Si no está en el mapa, y ya venía en 2 letras, lo usamos directo (por si acaso).
+  const isoCode =
+    fifaToIsoMap[fifaCode.toUpperCase()] ||
+    (fifaCode.length === 2 ? fifaCode.toLowerCase() : null);
+
+  const src = isoCode ? `https://flagcdn.com/w160/${isoCode}.png` : null;
+
+  if (error || !src) {
+    // Fallback: emoji if available, otherwise the FIFA code as text
+    return (
+      <span className="text-3xl leading-none" aria-label={teamName}>
+        {emoji || fifaCode}
+      </span>
+    );
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={teamName}
+      width={160}
+      height={106}
+      className="h-10 w-auto rounded-sm object-contain shadow-sm"
+      onError={() => setError(true)}
+      unoptimized // Desactivamos la optimización interna de Next.js porque flagcdn ya está súper optimizado
+    />
+  );
 }
 
 export function PredictionCard({
@@ -95,8 +143,6 @@ export function PredictionCard({
   const isCanceled = matchStatus === "CANCELED";
   const isReadOnly = isLocked || isFinished || isCanceled;
 
-  const hasFlags = team1Flag !== "" && team2Flag !== "";
-
   return (
     <div
       className={`relative rounded-xl border-2 bg-white shadow-sm transition-shadow hover:shadow-md ${
@@ -123,7 +169,7 @@ export function PredictionCard({
             </span>
           )}
           <span className="truncate text-xs text-gray-400">
-            {ground}{" · "}
+            {ground} {" · "}
             {formatTime(scheduleAt)}
           </span>
         </div>
@@ -151,9 +197,11 @@ export function PredictionCard({
         <div className="flex items-center gap-2">
           {/* ── Team 1 ── */}
           <div className="flex flex-1 flex-col items-center gap-1.5 text-center">
-            <span className="text-3xl leading-none" aria-hidden>
-              {hasFlags ? team1Flag : team1Code}
-            </span>
+            <TeamFlag
+              fifaCode={team1Code}
+              emoji={team1Flag}
+              teamName={team1}
+            />
             <span className="text-xs font-semibold text-gray-800 leading-tight line-clamp-2">
               {team1}
             </span>
@@ -188,18 +236,15 @@ export function PredictionCard({
             <span className="text-[10px] font-extrabold uppercase tracking-widest text-gray-300">
               VS
             </span>
-            {!hasFlags && (
-              <span className="text-[10px] font-medium text-gray-400">
-                {team1Code} – {team2Code}
-              </span>
-            )}
           </div>
 
           {/* ── Team 2 ── */}
           <div className="flex flex-1 flex-col items-center gap-1.5 text-center">
-            <span className="text-3xl leading-none" aria-hidden>
-              {hasFlags ? team2Flag : team2Code}
-            </span>
+            <TeamFlag
+              fifaCode={team2Code}
+              emoji={team2Flag}
+              teamName={team2}
+            />
             <span className="text-xs font-semibold text-gray-800 leading-tight line-clamp-2">
               {team2}
             </span>
