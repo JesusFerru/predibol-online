@@ -23,7 +23,7 @@ export default async function PortalPage() {
   const { data: ranking } = await supabase
     .from("tournamentranking")
     .select("points")
-    .eq("userId", user!.id)
+    .eq("userid", user!.id)
     .single();
 
   // Fetch all matches from JSON data (development data source)
@@ -121,7 +121,7 @@ export default async function PortalPage() {
             Enter your score predictions for each match. You can edit them until
             10 minutes before kickoff.
           </p>
-          <div className="mt-4">
+          <div className="mt-4 flex flex-wrap justify-center gap-2">
             <Link
               href="/ranking"
               className="inline-flex items-center gap-1.5 rounded-full border border-crimson/30 bg-crimson/5 px-4 py-2 text-sm font-medium text-crimson transition-colors hover:bg-crimson/10"
@@ -140,6 +140,25 @@ export default async function PortalPage() {
                 />
               </svg>
               View Ranking
+            </Link>
+            <Link
+              href="/portal/stats"
+              className="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:border-gray-300 hover:bg-gray-50"
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M11 3v18m-6-8v8m12-12v12"
+                />
+              </svg>
+              My Stats
             </Link>
           </div>
         </div>

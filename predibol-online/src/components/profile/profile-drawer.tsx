@@ -85,6 +85,13 @@ export function ProfileDrawer({
               Ranking
             </Link>
             <Link
+              href="/portal/stats"
+              onClick={onClose}
+              className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
+            >
+              My Statistics
+            </Link>
+            <Link
               href="/rules"
               onClick={onClose}
               className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"

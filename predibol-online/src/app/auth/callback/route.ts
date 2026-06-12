@@ -29,12 +29,15 @@ export async function GET(request: Request) {
   // Validate that the email exists in authorized_users and is active
   const { data: authUser, error: authError } = await supabase
     .from("authorized_users")
-    .select("email, name, alias, is_admin")
-    .eq("email", user.email)
+    .select("email, name, alias, isadmin")
+    .ilike("email", user.email)
     .eq("active", true)
-    .single();
+    .maybeSingle();
 
   if (authError || !authUser) {
+    if (authError) {
+      console.error("Failed to validate authorized user:", authError.message);
+    }
     // Authorization failed — sign out and redirect to unauthorized page
     await supabase.auth.signOut();
     return NextResponse.redirect(`${origin}/unauthorized`);
@@ -45,7 +48,7 @@ export async function GET(request: Request) {
     .from("users")
     .select("id")
     .eq("id", user.id)
-    .single();
+    .maybeSingle();
 
   if (!existingUser) {
     // Auto-provision users record from authorized_users data
@@ -54,7 +57,7 @@ export async function GET(request: Request) {
       email: authUser.email,
       name: authUser.name,
       alias: authUser.alias,
-      isadmin: authUser.is_admin,
+      isadmin: authUser.isadmin,
     });
 
     if (insertError) {

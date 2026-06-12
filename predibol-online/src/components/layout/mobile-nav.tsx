@@ -16,6 +16,11 @@ interface MobileNavProps {
   isAuthenticated: boolean;
 }
 
+function isActivePath(pathname: string, href: string): boolean {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 export function MobileNav({
   open,
   onClose,
@@ -52,7 +57,7 @@ export function MobileNav({
               href={item.href}
               onClick={onClose}
               className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                currentPath === item.href
+                isActivePath(currentPath, item.href)
                   ? "bg-white/20 text-white"
                   : "text-white/80 hover:bg-white/10 hover:text-white"
               }`}

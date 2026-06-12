@@ -14,10 +14,21 @@ const NAV_ITEMS = [
   { href: "/help", label: "Help" },
 ];
 
+const AUTH_NAV_ITEMS = [
+  { href: "/portal", label: "Predictions" },
+  { href: "/portal/stats", label: "Stats" },
+];
+
+function isActivePath(pathname: string, href: string): boolean {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 export function Header() {
   const { user } = useAuth();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navItems = user ? [...NAV_ITEMS, ...AUTH_NAV_ITEMS] : NAV_ITEMS;
 
   return (
     <header className="fixed top-0 z-50 w-full bg-crimson shadow-lg">
@@ -38,12 +49,12 @@ export function Header() {
 
         {/* Desktop Nav */}
         <nav className="hidden items-center gap-1 md:flex">
-          {NAV_ITEMS.map((item) => (
+          {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                pathname === item.href
+                isActivePath(pathname, item.href)
                   ? "bg-white/20 text-white"
                   : "text-white/80 hover:bg-white/10 hover:text-white"
               }`}
@@ -83,7 +94,7 @@ export function Header() {
       <MobileNav
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
-        items={NAV_ITEMS}
+        items={navItems}
         currentPath={pathname}
         isAuthenticated={!!user}
       />

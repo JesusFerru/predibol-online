@@ -26,14 +26,17 @@ export default async function PortalLayout({
   }
 
   // Check whitelist authorization
-  const { data: authUser } = await supabase
+  const { data: authUser, error: authError } = await supabase
     .from("authorized_users")
     .select("email")
-    .eq("email", user.email)
+    .ilike("email", user.email)
     .eq("active", true)
-    .single();
+    .maybeSingle();
 
-  if (!authUser) {
+  if (authError || !authUser) {
+    if (authError) {
+      console.error("Failed to validate portal authorization:", authError.message);
+    }
     await supabase.auth.signOut();
     redirect("/unauthorized");
   }
