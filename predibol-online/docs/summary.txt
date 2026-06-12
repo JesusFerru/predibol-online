@@ -1,0 +1,149 @@
+Resumen del Proyecto — Predibol Online
+
+ Fase 1 — Completada (antes de mi intervención)
+────────────────────────────────────────────┼────────┤
+│ Página pública Home (/)                    │ Yes    │
+├────────────────────────────────────────────┼────────┤
+│ Página Rules (/rules)                      │ Yes    │
+├────────────────────────────────────────────┼────────┤
+│ Página Help (/help)                        │ Yes    │
+├────────────────────────────────────────────┼────────┤
+│ Página Login (/login)                      │ Yes    │
+├────────────────────────────────────────────┼────────┤
+- Botón "Save" por partido con feedback visual (✓ Saved! / error)
+- Valores pre-rellenados si ya existe predicción guardada
+- Server Action savePrediction() con validación del lado servidor
+
+Deadline locking:
+- Bloqueo 10 minutos antes del kickoff (según business-rules.md)
+- Timezone: America/La_Paz (UTC-4)
+- Cálculo vía Date.UTC() para evitar bugs de parsing
+Resumen del Proyecto — Predibol Online
+
+✅ Fase 1 — Completada (antes de mi intervención)
+
+┌────────────────────────────────────────────┬────────┐
+│                  Elemento                  │ Estado │
+├────────────────────────────────────────────┼────────┤
+│ Conexión Supabase                             Yes
+├────────────────────────────────────────────┼────────┤
+│ Google OAuth                               │ Yes    │
+├───────────────────────────────────────────
+│ Callback de autenticación                  │ Yes    │
+├────────────────────────────────────────────┼────────┤
+│ Trigger de creación de usuarios            │ Yes    │
+├───────────────────────────────────────────
+│ Estructura de layout (Header/Footer/Shell) │ Yes    │
+├────────────────────────────────────────────┼────────┤
+│ RLS (Row Level Security)                   │ Yes    │
+├────────────────────────────────────────────┼────────┤
+│ Página pública Home (/)                    │ Yes    │
+├────────────────────────────────────────────┼────────┤
+│ Página Rules (/rules)                      │ Yes    │
+├────────────────────────────────────────────┼────────┤
+│ Página Help (/help)                        │ Yes    │
+├───────────────────────────────────────────
+│ Página Login (/login)                      │ Yes    │
+├───────────────────────────────────────────
+│ Página Unauthorized (/unauthorized)        │ Yes    │
+├────────────────────────────────────────────┼────────┤
+│ Botón de perfil flotante + drawer          │ Yes    │
+└────────────────────────────────────────────┴────────┘
+
+---
+ Fase 2 — Core Prediction System (completada en esta sesión)
+
+Match listing:
+├────────────────────────────────────────────┼────────┤
+│ Página Rules (/rules)                      │ Yes     │
+├───────────────────────────────────────────
+│ Página Help (/help)                        │ Yes    │
+├────────────────────────────────────────────┼────────┤
+│ Página Login (/login)                      │ Yes    │
+├────────────────────────────────────────────┼────────┤
+│ Página Unauthorized (/unauthorized)        │ Yes    │
+├────────────────────────────────────────────┼────────┤
+│ Botón de perfil flotante + drawer          │ Yes    │
+└───────────────────────────────────────────
+
+---
+ Fase 2 — Core Prediction System (completada en esta sesión)
+
+Match listing:
+- Listado de los 104 partidos desde wc26.json agrupados por fecha
+- Selector de día con tabs navegables (por defecto al primer día con partidos)
+- Cada match card muestra: group badge, estanderas, nombres de equipos
+- Banderas renderizadas vía flagcdn.com CDN con fallback a emoji unicode
+- Placeholders para partidos de knockout (W73, 2A, etc.) manejados sin bandera
+- Soporte para partidos sin datos de equipo
+
+Prediction creation/editing:
+- Inputs numéricos (0-30) para goles de cada
+- Botón "Save" por partido con feedback visual (✓ Saved! / error)
+- Valores pre-rellenados si ya existe predicción guardada
+- Server Action savePrediction() con validac
+- Botón "Save" por partido con feedback visual (✓ Saved! / error)
+- Valores pre-rellenados si ya existe predicción guardada
+- Server Action savePrediction() con validación del lado servidor
+
+Deadline locking:
+- Bloqueo 10 minutos antes del kickoff (según business-rules.md)
+- Timezone: America/La_Paz (UTC-4)
+- Cálculo vía Date.UTC() para evitar bugs de parsing
+- Tarjeta cambia a borde ámbar + badge "Locked"
+- Inputs deshabilitados en modo solo lectura
+- Muestra predicción guardada o "No prediction was saved"
+- Validación server-side que rechaza saves post-deadline
+
+Flujo de acceso (arreglado):
+- portal/layout.tsx: no autenticado → /, whitelist fail → /unauthorized, no pago → /payment-pending, pago OK → acceso
+- payment-pending/page.tsx: re-verifica haspaidentry en cada carga + botón "Verify Payment"
+- getHasPaidEntry() defensivo: soporta ambasna PostgreSQL
+
+Script de seed:
+- scripts/seed-matches.ts — idempotente, upsert de 104 partidos desde JSON
+- pnpm seed-matches para ejecutar
+- Requiere SUPABASE_SERVICE_ROLE_KEY en .env.local
+
+---
+📁 Archivos creados/modificados en Fase 2
+
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                    Archivo                     │    Tipo    │                     Propósito                      │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│ src/app/portal/actions.ts                      │ Nuevo      │ Server Action para guardar predicciones            │
+├────────────────────────────────────────────────┼────────────┼────────────────────────────────────────────────────┤
+│ src/app/portal/page.tsx                        │ Modificado │ Dashboard de predicciones con datos JSON +         │
+│                                                                                     │
+├────────────────────────────────────────────────┼────────────┼────────────────────────────────────────────────────┤
+│ src/app/payment-pending/page.tsx               │ Modificado │ Re-verificación de pago + botón Verify             │
+├────────────────────────────────────────────────┼────────────┼────────────────────────────────────────────────────┤
+│ src/app/payment-pending/actions.ts             │ Nuevo      │ Server Action verifyPayment                        │
+├────────────────────────────────────────────────┼────────────┼────────────────────────────────────────────────────┤
+│ src/components/auth/verify-payment-button.tsx  │ Nuevo      │ Botón cliente para verificar pago                  │
+├────────────────────────────────────────────────┼────────────┼────────────────────────────────────────────────────┤
+│ src/components/predictions/prediction-card.tsx │ Nuevo      │ Tarjeta de partido con inputs, flags, estados      │
+├────────────────────────────────────────────────┼────────────┼────────────────────────────────────────────────────┤
+│ src/components/predictions/prediction-list.tsx │ Nuevo      │ Lista de partidos con day selector tabs            │
+├────────────────────────────────────────────────┼────────────┼────────────────────────────────────────────────────┤
+│ src/lib/data/matches.ts                        │ Nuevo      │ Combina wc26.json + teams-wc26.json                │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+│ src/lib/data/countries.ts                      │ Nuevo      │ Mapeo FIFA code → ISO code para flagcdn            │
+├────────────────────────────────────────────────┼────────────┼────────────────────────────────────────────────────┤
+│ scripts/seed-matches.ts                        │ Nuevo      │ Script de seed idempotente                         │
+├─────────────────────────────────────────────────────────────────────────────────────┤
+---
+Fases pendientes (según roadmap)
+
+┌──────┬────────────────────┬──────────────────────────────────────────────────────────────────────┐
+│ Fase │    Descripción     │                               Features                               │
+├──────┼────────────────────┼──────────────────────────────────────────────────────────────────────┤
+│ 3    │ Tournament Ranking │ Página de ranking, cálculo de puntos, tie-breakers                   │
+├──────┼────────────────────┼──────────────────────────────────────────────────────────────────────┤
+│ 4    │ Match of the Day   │ Highlighting visual, predicciones extra, upload de recibos, créditos │
+├──────┼────────────────────┼──────────────────────────────────────────────────────────────────────┤
+│ 5    │ Statistics         │ Estadísticas de usuario, insights de ranking                         │
+├──────┼────────────────────┼──────────────────────────────────────────────────────────────────────┤
+│ 6    │ Polish             │ Mobile refinemstates, error handling    │
+│ next.config.ts      │ Added flagcdn.com to remotePatterns                                     │
+└─────────────────────┴─────────────────────────────────────────────────────────────────────────┘
