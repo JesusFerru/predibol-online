@@ -26,6 +26,16 @@ export default async function PortalPage() {
     .eq("userid", user!.id)
     .single();
 
+  // Compute user's ranking position by counting users with more points
+  let rank: number | null = null;
+  if (ranking?.points != null) {
+    const { count: betterCount } = await supabase
+      .from("tournamentranking")
+      .select("*", { count: "exact", head: true })
+      .gt("points", ranking.points);
+    rank = (betterCount ?? 0) + 1;
+  }
+
   // Fetch all matches from JSON data (development data source)
   const enrichedMatches = getEnrichedMatches();
 
@@ -174,6 +184,7 @@ export default async function PortalPage() {
         userEmail={user!.email!}
         credits={profile?.availablepoolcredits ?? 0}
         points={ranking?.points ?? 0}
+        rank={rank}
       />
     </div>
   );

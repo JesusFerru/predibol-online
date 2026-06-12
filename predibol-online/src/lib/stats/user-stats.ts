@@ -169,9 +169,15 @@ function buildStats(
       if (exact) {
         exactScoreHits++;
         result = "Exact";
-      } else if (outcome) {
+      } else if (outcome && !suppressOutcome) {
         correctOutcomeHits++;
         result = "Outcome";
+      } else if (outcome && suppressOutcome) {
+        // Multi-bet rule: outcome direction was correct but points are
+        // suppressed. Match tie-breaker behavior (tiebreaker-counts.sql)
+        // which does NOT count suppressed outcomes.
+        missedPredictions++;
+        result = "Miss";
       } else {
         missedPredictions++;
         result = "Miss";

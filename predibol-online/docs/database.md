@@ -9,8 +9,8 @@ The official Supabase schema definition is located at `/database/schema.sql`. Cl
 
 ### authorized_users
 * **Whitelist Source of Truth:** This table is the authoritative source for platform access authorization. It is maintained manually through Supabase by administrators.
-* **Columns:** `email` (PK), `name`, `alias` (unique), `is_admin`, `active`, `created_at`.
-* **Access Control:** Only users whose email exists in this table with `active = TRUE` are granted access to the platform. The `is_admin` flag propagates to `Users.isAdmin` during automatic provisioning.
+* **Columns:** `email` (PK), `name`, `alias` (unique), `isadmin`, `active`, `created_at`.
+* **Access Control:** Only users whose email exists in this table with `active = TRUE` are granted access to the platform. The `isadmin` flag propagates to `Users.isAdmin` during automatic provisioning.
 
 ### Users
 * **Authentication:** Primary Key `id` maps directly to Supabase Auth (`auth.users.id`).

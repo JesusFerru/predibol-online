@@ -48,6 +48,32 @@ function PositionBadge({ position }: { position: number }) {
   );
 }
 
+/**
+ * Returns true when two ranking entries are fully tied (all criteria equal).
+ * Per business-rules.md: when all tie-breakers are exhausted, positions are merged.
+ */
+function isTied(a: RankingEntry, b: RankingEntry): boolean {
+  return (
+    a.points === b.points &&
+    a.exact_score_count === b.exact_score_count &&
+    a.correct_outcome_count === b.correct_outcome_count &&
+    a.correct_penalty_count === b.correct_penalty_count
+  );
+}
+
+/** Computes merged display positions for the ranking array. */
+function computePositions(ranking: RankingEntry[]): number[] {
+  const positions: number[] = [];
+  for (let i = 0; i < ranking.length; i++) {
+    if (i > 0 && isTied(ranking[i], ranking[i - 1])) {
+      positions.push(positions[i - 1]);
+    } else {
+      positions.push(i + 1);
+    }
+  }
+  return positions;
+}
+
 export function RankingTable({ ranking, currentUserId }: RankingTableProps) {
   if (ranking.length === 0) {
     return (
@@ -61,6 +87,8 @@ export function RankingTable({ ranking, currentUserId }: RankingTableProps) {
       </div>
     );
   }
+
+  const displayPositions = computePositions(ranking);
 
   return (
     <>
@@ -88,7 +116,7 @@ export function RankingTable({ ranking, currentUserId }: RankingTableProps) {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {ranking.map((entry, idx) => {
-              const position = idx + 1;
+              const position = displayPositions[idx];
               const isCurrentUser = entry.userid === currentUserId;
 
               return (
@@ -135,7 +163,7 @@ export function RankingTable({ ranking, currentUserId }: RankingTableProps) {
       {/* ── Mobile cards ── */}
       <div className="sm:hidden flex flex-col gap-3">
         {ranking.map((entry, idx) => {
-          const position = idx + 1;
+          const position = displayPositions[idx];
           const isCurrentUser = entry.userid === currentUserId;
 
           return (

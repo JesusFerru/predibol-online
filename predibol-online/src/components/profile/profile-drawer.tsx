@@ -11,6 +11,7 @@ interface ProfileDrawerProps {
   userEmail: string;
   credits: number;
   points: number;
+  rank: number | null;
 }
 
 export function ProfileDrawer({
@@ -21,6 +22,7 @@ export function ProfileDrawer({
   userEmail,
   credits,
   points,
+  rank,
 }: ProfileDrawerProps) {
   const { signOut } = useAuth();
 
@@ -62,14 +64,20 @@ export function ProfileDrawer({
           <hr className="border-gray-200" />
 
           {/* Stats */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-lg bg-gray-50 p-3 text-center">
-              <p className="text-lg font-bold text-crimson">{points}</p>
-              <p className="text-xs text-gray-500">Points</p>
+          <div className="grid grid-cols-3 gap-2">
+            <div className="rounded-lg bg-gray-50 p-2 text-center">
+              <p className="text-base font-bold text-crimson">
+                {rank != null ? `#${rank}` : "—"}
+              </p>
+              <p className="text-[10px] text-gray-500">Rank</p>
             </div>
-            <div className="rounded-lg bg-gray-50 p-3 text-center">
-              <p className="text-lg font-bold text-crimson">{credits}</p>
-              <p className="text-xs text-gray-500">Credits</p>
+            <div className="rounded-lg bg-gray-50 p-2 text-center">
+              <p className="text-base font-bold text-crimson">{points}</p>
+              <p className="text-[10px] text-gray-500">Points</p>
+            </div>
+            <div className="rounded-lg bg-gray-50 p-2 text-center">
+              <p className="text-base font-bold text-crimson">{credits}</p>
+              <p className="text-[10px] text-gray-500">Credits</p>
             </div>
           </div>
 

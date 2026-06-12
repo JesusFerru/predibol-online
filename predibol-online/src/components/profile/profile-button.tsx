@@ -9,6 +9,7 @@ interface ProfileButtonProps {
   userEmail: string;
   credits: number;
   points: number;
+  rank: number | null;
 }
 
 export function ProfileButton({
@@ -17,6 +18,7 @@ export function ProfileButton({
   userEmail,
   credits,
   points,
+  rank,
 }: ProfileButtonProps) {
   const [open, setOpen] = useState(false);
 
@@ -45,6 +47,7 @@ export function ProfileButton({
         userEmail={userEmail}
         credits={credits}
         points={points}
+        rank={rank}
       />
     </>
   );

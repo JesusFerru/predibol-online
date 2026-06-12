@@ -1,5 +1,8 @@
 // Database types for Predibol Online
 // These mirror the schema defined in /database/schema.sql
+//
+// IMPORTANT: PostgreSQL folds unquoted identifiers to lowercase.
+// All property names must match the stored column name (all lowercase).
 
 export interface AuthorizedUserRow {
   email: string;
@@ -23,82 +26,82 @@ export interface UserRow {
 }
 
 export interface MatchResultRow {
-  matchId: string;
+  matchid: string;
   team1: string;
   team2: string;
   goal1: number | null;
   goal2: number | null;
-  matchStatus: "PENDING" | "FINISHED" | "CANCELED";
-  hasExtraPool: boolean;
-  scheduleAt: string | null;
+  matchstatus: "PENDING" | "FINISHED" | "CANCELED";
+  hasextrapool: boolean;
+  scheduleat: string | null;
 }
 
 export interface MatchBetRow {
   id: number;
-  userId: string;
-  matchId: string;
-  betGoalTeam1: number;
-  betGoalTeam2: number;
-  penaltyWinnerTeam: 1 | 2 | null;
-  hasPaidExtraPool: boolean;
-  createdAt: string;
-  updatedAt: string;
+  userid: string;
+  matchid: string;
+  betgoalteam1: number;
+  betgoalteam2: number;
+  penaltywinnerteam: 1 | 2 | null;
+  haspaidextrapool: boolean;
+  createdat: string;
+  updatedat: string;
 }
 
 export interface ExtraPoolEntryRow {
   id: number;
-  betId: number;
-  amountBs: number;
-  receiptUrl: string | null;
-  paymentValidated: boolean;
-  createdAt: string;
+  betid: number;
+  amountbs: number;
+  receipturl: string | null;
+  paymentvalidated: boolean;
+  createdat: string;
 }
 
 export interface MatchPoolRow {
-  matchId: string;
-  entryFeeBs: number;
-  maintenancePercentage: number;
-  rolloverAmountBs: number;
-  totalCollectedBs: number;
-  totalDistributedBs: number;
-  maintenanceAmountBs: number;
-  minimumPlayers: number;
-  poolStatus: "OPEN" | "COMPLETED" | "CANCELED" | "ROLLED_OVER";
-  processedAt: string | null;
-  createdAt: string;
+  matchid: string;
+  entryfeebs: number;
+  maintenancepercentage: number;
+  rolloveramountbs: number;
+  totalcollectedbs: number;
+  totaldistributedbs: number;
+  maintenanceamountbs: number;
+  minimumplayers: number;
+  poolstatus: "OPEN" | "COMPLETED" | "CANCELED" | "ROLLED_OVER";
+  processedat: string | null;
+  createdat: string;
 }
 
 export interface WinnersBetRow {
-  userId: string;
-  winner1stPlace: string;
-  winner2ndPlace: string;
-  winner3rdPlace: string;
-  createdAt: string;
-  updatedAt: string;
+  userid: string;
+  winner1stplace: string;
+  winner2ndplace: string;
+  winner3rdplace: string;
+  createdat: string;
+  updatedat: string;
 }
 
 export interface CashInflowRow {
   id: number;
-  userId: string;
-  createdBy: string;
-  amountBs: number;
+  userid: string;
+  createdby: string;
+  amountbs: number;
   concept: string;
-  receiptUrl: string | null;
-  createdAt: string;
+  receipturl: string | null;
+  createdat: string;
 }
 
 export interface DailyPayoutRow {
   id: number;
-  matchId: string;
-  userId: string;
-  amountPaidBs: number;
-  paymentStatus: boolean;
-  payoutDate: string;
-  paidAt: string | null;
+  matchid: string;
+  userid: string;
+  amountpaidbs: number;
+  paymentstatus: boolean;
+  payoutdate: string;
+  paidat: string | null;
 }
 
 export interface TournamentRankingRow {
-  userId: string;
+  userid: string;
   points: number;
-  updatedAt: string;
+  updatedat: string;
 }

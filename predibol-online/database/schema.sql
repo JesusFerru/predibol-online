@@ -3,7 +3,7 @@ CREATE TABLE public.authorized_users (
     email TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     alias TEXT UNIQUE NOT NULL,
-    is_admin BOOLEAN NOT NULL DEFAULT FALSE,
+    isadmin BOOLEAN NOT NULL DEFAULT FALSE,
      phoneNumber TEXT,
     active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -391,7 +391,7 @@ BEGIN
             auth_user.name,
             auth_user.alias,
             FALSE,
-            auth_user.is_admin
+            auth_user.isadmin
         );
     END IF;
 
