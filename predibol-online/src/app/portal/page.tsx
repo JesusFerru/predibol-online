@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { ProfileButton } from "@/components/profile/profile-button";
+import { PodiumButton } from "@/components/predictions/podium-button";
 import {
   PredictionList,
   type MatchWithBet,
 } from "@/components/predictions/prediction-list";
 import { getEnrichedMatches } from "@/lib/data/matches";
+import teamsData from "@/../extra_info/teams-wc26.json";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function PortalPage() {
@@ -35,6 +37,29 @@ export default async function PortalPage() {
       .gt("points", ranking.points);
     rank = (betterCount ?? 0) + 1;
   }
+
+  // ── Podium prediction data ──
+  const PODIUM_DEADLINE = new Date("2026-06-28T03:59:00Z"); // June 27 23:59 UTC-4
+  const podiumIsLocked = new Date() >= PODIUM_DEADLINE;
+
+  const { data: podiumBet } = await supabase
+    .from("winnersbets")
+    .select("winner1stplace, winner2ndplace, winner3rdplace")
+    .eq("userid", user!.id)
+    .maybeSingle();
+
+  const podiumExisting = podiumBet
+    ? {
+        winner1stplace: (podiumBet as Record<string, string>).winner1stplace,
+        winner2ndplace: (podiumBet as Record<string, string>).winner2ndplace,
+        winner3rdplace: (podiumBet as Record<string, string>).winner3rdplace,
+      }
+    : null;
+
+  // All 48 team names for the podium selector
+  const podiumTeams = (teamsData.teamsList as { name: string }[])
+    .map((t) => t.name)
+    .sort();
 
   // Fetch all matches from JSON data (development data source)
   const enrichedMatches = getEnrichedMatches();
@@ -176,6 +201,13 @@ export default async function PortalPage() {
         {/* Match list */}
         <PredictionList dayGroups={dayGroups} />
       </div>
+
+      {/* Floating podium button */}
+      <PodiumButton
+        teams={podiumTeams}
+        existing={podiumExisting}
+        isLocked={podiumIsLocked}
+      />
 
       {/* Floating profile button */}
       <ProfileButton
