@@ -36,14 +36,14 @@ interface Wc26Json {
 }
 
 interface MatchRow {
-  matchId: string;
+  matchid: string;
   team1: string;
   team2: string;
   goal1: number | null;
   goal2: number | null;
-  matchStatus: "PENDING" | "FINISHED" | "CANCELED";
-  hasExtraPool: boolean;
-  scheduleAt: string;
+  matchstatus: "PENDING" | "FINISHED" | "CANCELED";
+  hasextrapool: boolean;
+  scheduleat: string;
 }
 
 // ─── Env ────────────────────────────────────────────────
@@ -89,7 +89,7 @@ function parseKickoff(date: string, time: string): string {
 
 // ─── Status mapper ──────────────────────────────────────
 
-function mapStatus(jsonStatus: string): MatchRow["matchStatus"] {
+function mapStatus(jsonStatus: string): MatchRow["matchstatus"] {
   switch (jsonStatus) {
     case "SCHEDULED":
       return "PENDING";
@@ -114,14 +114,14 @@ async function main() {
   console.log(`   Found ${data.matches.length} matches in JSON.\n`);
 
   const rows: MatchRow[] = data.matches.map((m) => ({
-    matchId: String(m.id),
+    matchid: String(m.id),
     team1: m.team1,
     team2: m.team2,
     goal1: m.goalsTeam1 ?? null,
     goal2: m.goalsTeam2 ?? null,
-    matchStatus: mapStatus(m.status),
-    hasExtraPool: false,
-    scheduleAt: parseKickoff(m.date, m.time),
+    matchstatus: mapStatus(m.status),
+    hasextrapool: false,
+    scheduleat: parseKickoff(m.date, m.time),
   }));
 
   const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
@@ -137,7 +137,7 @@ async function main() {
     const { error } = await supabase
       .from("matchresults")
       .upsert(batch, {
-        onConflict: "matchId",
+        onConflict: "matchid",
         ignoreDuplicates: false,
       });
 
@@ -147,7 +147,7 @@ async function main() {
     }
 
     console.log(
-      `   Batch ${String(i / BATCH_SIZE + 1).padStart(3, " ")} — ${batch.length} matches (${batch[0].matchId} … ${batch[batch.length - 1].matchId})`,
+      `   Batch ${String(i / BATCH_SIZE + 1).padStart(3, " ")} — ${batch.length} matches (${batch[0].matchid} … ${batch[batch.length - 1].matchid})`,
     );
     processed += batch.length;
   }
