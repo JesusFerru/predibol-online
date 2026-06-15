@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/client";
 
-const RECEIPTS_BUCKET = "receipts";
+const RECEIPTS_BUCKET = "payment-receipts";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
