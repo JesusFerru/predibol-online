@@ -13,6 +13,7 @@ function getHasPaidEntry(profile: Record<string, unknown> | null): boolean {
 
 export async function verifyPayment(): Promise<{ paid: boolean }> {
   const supabase = await createClient();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -21,11 +22,23 @@ export async function verifyPayment(): Promise<{ paid: boolean }> {
     return { paid: false };
   }
 
-  const { data: profile } = await supabase
+  let { data: profile } = await supabase
     .from("users")
     .select("*")
     .eq("id", user.id)
     .maybeSingle();
+
+  if (!profile) {
+    await supabase.rpc("sync_user_from_auth");
+
+    const result = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    profile = result.data;
+  }
 
   return { paid: getHasPaidEntry(profile) };
 }
