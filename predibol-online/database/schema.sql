@@ -443,3 +443,50 @@ CREATE OR REPLACE FUNCTION public.sync_user_from_auth()
 
     END;
 $$;
+
+-- =====================================================
+-- POOL CREDIT FUNCTIONS
+-- =====================================================
+-- Atomic credit operations for Daily Pool entries.
+-- SECURITY DEFINER ensures users can consume/refund
+-- credits without being able to set arbitrary values.
+
+CREATE OR REPLACE FUNCTION public.consume_pool_credit(p_userid uuid)
+    RETURNS void
+    LANGUAGE plpgsql
+    SECURITY DEFINER
+    SET search_path = public
+    AS $$
+    DECLARE
+        v_credits integer;
+    BEGIN
+        SELECT availablepoolcredits INTO v_credits
+        FROM users
+        WHERE id = p_userid;
+
+        IF v_credits IS NULL THEN
+            RAISE EXCEPTION 'User not found';
+        END IF;
+
+        IF v_credits < 1 THEN
+            RAISE EXCEPTION 'Insufficient credits';
+        END IF;
+
+        UPDATE users
+        SET availablepoolcredits = availablepoolcredits - 1
+        WHERE id = p_userid;
+    END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.refund_pool_credit(p_userid uuid)
+    RETURNS void
+    LANGUAGE plpgsql
+    SECURITY DEFINER
+    SET search_path = public
+    AS $$
+    BEGIN
+        UPDATE users
+        SET availablepoolcredits = availablepoolcredits + 1
+        WHERE id = p_userid;
+    END;
+$$;
