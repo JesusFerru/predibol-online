@@ -100,6 +100,13 @@ export function ProfileDrawer({
               My Statistics
             </Link>
             <Link
+              href="/portal/pool-history"
+              onClick={onClose}
+              className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
+            >
+              Pool History
+            </Link>
+            <Link
               href="/rules"
               onClick={onClose}
               className="rounded-md px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100"
