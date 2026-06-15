@@ -4,6 +4,10 @@ import { savePrediction } from "@/app/portal/actions";
 import { useState, useTransition } from "react";
 import Image from "next/image";
 import { fifaToIsoMap } from "@/lib/data/countries";
+import {
+  ExtraPredictionPanel,
+  type ExtraBetData,
+} from "./extra-prediction-panel";
 
 interface ExistingBet {
   betgoalteam1: number;
@@ -26,6 +30,12 @@ export interface PredictionCardProps {
   existingBet: ExistingBet | null;
   isLocked: boolean;
   hasExtraPool: boolean;
+  /** User ID for receipt uploads and credit operations */
+  userId: string;
+  /** Available pool credits for the current user */
+  availableCredits: number;
+  /** Existing extra predictions for this match (Daily Pool) */
+  extraBets: ExtraBetData[];
 }
 
 /**
@@ -90,6 +100,9 @@ export function PredictionCard({
   existingBet,
   isLocked,
   hasExtraPool,
+  userId,
+  availableCredits,
+  extraBets,
 }: PredictionCardProps) {
   const [goal1, setGoal1] = useState<number | "">(
     existingBet?.betgoalteam1 ?? "",
@@ -322,6 +335,17 @@ export function PredictionCard({
           <p className="mt-2 text-center text-[11px] text-amber-600">
             Deadline passed. No prediction was saved.
           </p>
+        )}
+
+        {/* ── Daily Pool section (Match of the Day only) ── */}
+        {hasExtraPool && (
+          <ExtraPredictionPanel
+            matchId={matchId}
+            userId={userId}
+            isLocked={isLocked}
+            availableCredits={availableCredits}
+            extraBets={extraBets}
+          />
         )}
       </div>
     </div>

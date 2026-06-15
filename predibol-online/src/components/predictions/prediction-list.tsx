@@ -122,6 +122,9 @@ export function PredictionList({ dayGroups }: PredictionListProps) {
               existingBet={match.existingBet}
               isLocked={match.isLocked}
               hasExtraPool={match.hasExtraPool}
+              userId={match.userId}
+              availableCredits={match.availableCredits}
+              extraBets={match.extraBets}
             />
           ))}
         </div>

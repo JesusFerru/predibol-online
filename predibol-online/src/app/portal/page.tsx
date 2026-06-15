@@ -5,6 +5,7 @@ import {
   PredictionList,
   type MatchWithBet,
 } from "@/components/predictions/prediction-list";
+import type { ExtraBetData } from "@/components/predictions/extra-prediction-panel";
 import { getEnrichedMatches } from "@/lib/data/matches";
 import teamsData from "@/../extra_info/teams-wc26.json";
 import { createClient } from "@/lib/supabase/server";
@@ -64,11 +65,36 @@ export default async function PortalPage() {
   // Fetch all matches from JSON data (development data source)
   const enrichedMatches = getEnrichedMatches();
 
-  // Fetch user's existing bets from Supabase
-  const { data: bets } = await supabase
+  // ── Fetch all bets (standard + extra) ──
+  const { data: allBets } = await supabase
     .from("matchbets")
-    .select("matchid, betgoalteam1, betgoalteam2")
+    .select("id, matchid, betgoalteam1, betgoalteam2, haspaidextrapool, createdat")
     .eq("userid", user!.id);
+
+  // Separate standard bets from extra (Daily Pool) bets
+  const standardBets = (allBets || []).filter((b) => !b.haspaidextrapool);
+  const extraBetsRaw = (allBets || []).filter((b) => b.haspaidextrapool);
+
+  // Fetch extrapoolentries for extra bets
+  const extraBetIds = extraBetsRaw.map((b) => b.id);
+  const entryByBetId = new Map<
+    number,
+    { paymentvalidated: boolean; receipturl: string | null }
+  >();
+  if (extraBetIds.length > 0) {
+    const { data: entries } = await supabase
+      .from("extrapoolentries")
+      .select("betid, paymentvalidated, receipturl")
+      .in("betid", extraBetIds);
+    if (entries) {
+      for (const e of entries) {
+        entryByBetId.set(e.betid, {
+          paymentvalidated: e.paymentvalidated,
+          receipturl: e.receipturl,
+        });
+      }
+    }
+  }
 
   // Fetch which matches have an extra pool (Match of the Day)
   const { data: extraPoolMatches } = await supabase
@@ -84,19 +110,40 @@ export default async function PortalPage() {
     }
   }
 
-  // Build a lookup map of matchId -> bet
+  // Build lookup: matchId -> standard bet
   const betByMatch = new Map<
     string,
     { betgoalteam1: number; betgoalteam2: number }
   >();
-  if (bets) {
-    for (const bet of bets) {
-      betByMatch.set(bet.matchid, {
-        betgoalteam1: bet.betgoalteam1,
-        betgoalteam2: bet.betgoalteam2,
-      });
+  for (const bet of standardBets) {
+    betByMatch.set(bet.matchid, {
+      betgoalteam1: bet.betgoalteam1,
+      betgoalteam2: bet.betgoalteam2,
+    });
+  }
+
+  // Build lookup: matchId -> extra bets
+  const extraBetsByMatch = new Map<string, ExtraBetData[]>();
+  for (const bet of extraBetsRaw) {
+    const entry = entryByBetId.get(bet.id);
+    const extraBet: ExtraBetData = {
+      betId: bet.id,
+      betGoalTeam1: bet.betgoalteam1,
+      betGoalTeam2: bet.betgoalteam2,
+      paymentValidated: entry?.paymentvalidated ?? false,
+      receiptUrl: entry?.receipturl ?? null,
+      createdAt: bet.createdat,
+    };
+    const list = extraBetsByMatch.get(bet.matchid);
+    if (list) {
+      list.push(extraBet);
+    } else {
+      extraBetsByMatch.set(bet.matchid, [extraBet]);
     }
   }
+
+  // Available credits for the user
+  const userCredits: number = profile?.availablepoolcredits ?? 0;
 
   // Compute lock status and build match objects
   const now = new Date();
@@ -121,6 +168,9 @@ export default async function PortalPage() {
       existingBet: betByMatch.get(m.matchId) ?? null,
       isLocked,
       hasExtraPool: motdMatchIds.has(m.matchId),
+      userId: user!.id,
+      availableCredits: userCredits,
+      extraBets: extraBetsByMatch.get(m.matchId) ?? [],
     };
   });
 
