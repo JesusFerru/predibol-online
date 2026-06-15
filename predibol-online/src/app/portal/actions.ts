@@ -329,45 +329,33 @@ export async function createExtraPrediction(
     return { success: false, error: "The prediction deadline for this match has passed." };
   }
 
-  // Ensure pool exists and is open. Auto-create with defaults when
-  // an admin has marked the match as MOTD but hasn't created the pool yet.
-  let poolEntryFeeBs = 50;
-  let poolStatus = "OPEN";
+  // Ensure pool exists and is open. Uses a SECURITY DEFINER function
+  // to auto-create the matchpools row when an admin has marked the match
+  // as MOTD but hasn't manually created the pool yet.
+  const { data: poolData, error: poolError } = await supabase.rpc(
+    "ensure_match_pool",
+    { p_matchid: matchId },
+  );
 
-  const { data: pool } = await supabase
-    .from("matchpools")
-    .select("entryfeebs, poolstatus")
-    .eq("matchid", matchId)
-    .maybeSingle();
-
-  if (pool) {
-    poolEntryFeeBs = pool.entryfeebs;
-    poolStatus = pool.poolstatus;
-  } else {
-    // Auto-create the pool row with sensible defaults
-    const { error: createPoolError } = await supabase
-      .from("matchpools")
-      .insert({
-        matchid: matchId,
-        entryfeebs: poolEntryFeeBs,
-        maintenancepercentage: 10,
-        minimumplayers: 3,
-        poolstatus: "OPEN",
-        rolloveramountbs: 0,
-        totalcollectedbs: 0,
-        totaldistributedbs: 0,
-        maintenanceamountbs: 0,
-      });
-
-    if (createPoolError) {
-      console.error("Failed to auto-create matchpool:", createPoolError);
-      return { success: false, error: "Failed to initialize the Daily Pool. Please contact the administrator." };
-    }
+  if (poolError || !poolData) {
+    console.error("Failed to ensure match pool:", poolError);
+    return {
+      success: false,
+      error: "Failed to initialize the Daily Pool. Please try again.",
+    };
   }
 
-  if (poolStatus !== "OPEN") {
+  // The RPC returns a table; first row has the values
+  const poolRow = (Array.isArray(poolData) ? poolData[0] : poolData) as {
+    entryfeebs: number;
+    poolstatus: string;
+  };
+
+  if (!poolRow || poolRow.poolstatus !== "OPEN") {
     return { success: false, error: "The Daily Pool is not currently open for this match." };
   }
+
+  const poolEntryFeeBs = poolRow.entryfeebs;
 
   // Validate payment method
   if (paymentMethod === "receipt" && !receiptUrl) {

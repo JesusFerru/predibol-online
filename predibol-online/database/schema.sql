@@ -490,3 +490,65 @@ CREATE OR REPLACE FUNCTION public.refund_pool_credit(p_userid uuid)
         WHERE id = p_userid;
     END;
 $$;
+
+-- =====================================================
+-- ENSURE MATCH POOL
+-- =====================================================
+-- Auto-creates a matchpools row when a MOTD match is
+-- detected but no pool exists yet. Returns the pool's
+-- entryfeebs and poolstatus for the caller.
+-- SECURITY DEFINER bypasses RLS (no INSERT policy on matchpools).
+
+CREATE OR REPLACE FUNCTION public.ensure_match_pool(
+    p_matchid text,
+    p_entryfeebs numeric DEFAULT 50,
+    p_maintenancepercentage numeric DEFAULT 10,
+    p_minimumplayers integer DEFAULT 3
+)
+    RETURNS TABLE(entryfeebs numeric, poolstatus text)
+    LANGUAGE plpgsql
+    SECURITY DEFINER
+    SET search_path = public
+    AS $$
+    DECLARE
+        v_pool record;
+    BEGIN
+        SELECT mp.entryfeebs, mp.poolstatus
+        INTO v_pool
+        FROM matchpools mp
+        WHERE mp.matchid = p_matchid;
+
+        IF FOUND THEN
+            entryfeebs := v_pool.entryfeebs;
+            poolstatus := v_pool.poolstatus;
+            RETURN NEXT;
+        ELSE
+            INSERT INTO matchpools (
+                matchid,
+                entryfeebs,
+                maintenancepercentage,
+                minimumplayers,
+                poolstatus,
+                rolloveramountbs,
+                totalcollectedbs,
+                totaldistributedbs,
+                maintenanceamountbs
+            )
+            VALUES (
+                p_matchid,
+                p_entryfeebs,
+                p_maintenancepercentage,
+                p_minimumplayers,
+                'OPEN',
+                0,
+                0,
+                0,
+                0
+            );
+
+            entryfeebs := p_entryfeebs;
+            poolstatus := 'OPEN';
+            RETURN NEXT;
+        END IF;
+    END;
+$$;
