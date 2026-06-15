@@ -329,14 +329,43 @@ export async function createExtraPrediction(
     return { success: false, error: "The prediction deadline for this match has passed." };
   }
 
-  // Validate pool is open
+  // Ensure pool exists and is open. Auto-create with defaults when
+  // an admin has marked the match as MOTD but hasn't created the pool yet.
+  let poolEntryFeeBs = 50;
+  let poolStatus = "OPEN";
+
   const { data: pool } = await supabase
     .from("matchpools")
     .select("entryfeebs, poolstatus")
     .eq("matchid", matchId)
     .maybeSingle();
 
-  if (!pool || pool.poolstatus !== "OPEN") {
+  if (pool) {
+    poolEntryFeeBs = pool.entryfeebs;
+    poolStatus = pool.poolstatus;
+  } else {
+    // Auto-create the pool row with sensible defaults
+    const { error: createPoolError } = await supabase
+      .from("matchpools")
+      .insert({
+        matchid: matchId,
+        entryfeebs: poolEntryFeeBs,
+        maintenancepercentage: 10,
+        minimumplayers: 3,
+        poolstatus: "OPEN",
+        rolloveramountbs: 0,
+        totalcollectedbs: 0,
+        totaldistributedbs: 0,
+        maintenanceamountbs: 0,
+      });
+
+    if (createPoolError) {
+      console.error("Failed to auto-create matchpool:", createPoolError);
+      return { success: false, error: "Failed to initialize the Daily Pool. Please contact the administrator." };
+    }
+  }
+
+  if (poolStatus !== "OPEN") {
     return { success: false, error: "The Daily Pool is not currently open for this match." };
   }
 
@@ -419,7 +448,7 @@ export async function createExtraPrediction(
     .from("extrapoolentries")
     .insert({
       betid: bet.id,
-      amountbs: pool.entryfeebs,
+      amountbs: poolEntryFeeBs,
       receipturl: paymentMethod === "receipt" ? receiptUrl : null,
       paymentvalidated: false,
       createdat: now,
