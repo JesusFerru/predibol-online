@@ -5,6 +5,7 @@ import {
   PredictionList,
   type MatchWithBet,
 } from "@/components/predictions/prediction-list";
+import type { ExtraBetData } from "@/components/predictions/extra-prediction-panel";
 import { getEnrichedMatches } from "@/lib/data/matches";
 import teamsData from "@/../extra_info/teams-wc26.json";
 import { createClient } from "@/lib/supabase/server";
@@ -64,25 +65,85 @@ export default async function PortalPage() {
   // Fetch all matches from JSON data (development data source)
   const enrichedMatches = getEnrichedMatches();
 
-  // Fetch user's existing bets from Supabase
-  const { data: bets } = await supabase
+  // ── Fetch all bets (standard + extra) ──
+  const { data: allBets } = await supabase
     .from("matchbets")
-    .select("matchid, betgoalteam1, betgoalteam2")
+    .select("id, matchid, betgoalteam1, betgoalteam2, haspaidextrapool, createdat")
     .eq("userid", user!.id);
 
-  // Build a lookup map of matchId -> bet
+  // Separate standard bets from extra (Daily Pool) bets
+  const standardBets = (allBets || []).filter((b) => !b.haspaidextrapool);
+  const extraBetsRaw = (allBets || []).filter((b) => b.haspaidextrapool);
+
+  // Fetch extrapoolentries for extra bets
+  const extraBetIds = extraBetsRaw.map((b) => b.id);
+  const entryByBetId = new Map<
+    number,
+    { paymentvalidated: boolean; receipturl: string | null }
+  >();
+  if (extraBetIds.length > 0) {
+    const { data: entries } = await supabase
+      .from("extrapoolentries")
+      .select("betid, paymentvalidated, receipturl")
+      .in("betid", extraBetIds);
+    if (entries) {
+      for (const e of entries) {
+        entryByBetId.set(e.betid, {
+          paymentvalidated: e.paymentvalidated,
+          receipturl: e.receipturl,
+        });
+      }
+    }
+  }
+
+  // Fetch which matches have an extra pool (Match of the Day)
+  const { data: extraPoolMatches } = await supabase
+    .from("matchresults")
+    .select("matchid, hasextrapool")
+    .eq("hasextrapool", true);
+
+  // Build a lookup set of MOTD match IDs
+  const motdMatchIds = new Set<string>();
+  if (extraPoolMatches) {
+    for (const m of extraPoolMatches) {
+      motdMatchIds.add(m.matchid);
+    }
+  }
+
+  // Build lookup: matchId -> standard bet
   const betByMatch = new Map<
     string,
     { betgoalteam1: number; betgoalteam2: number }
   >();
-  if (bets) {
-    for (const bet of bets) {
-      betByMatch.set(bet.matchid, {
-        betgoalteam1: bet.betgoalteam1,
-        betgoalteam2: bet.betgoalteam2,
-      });
+  for (const bet of standardBets) {
+    betByMatch.set(bet.matchid, {
+      betgoalteam1: bet.betgoalteam1,
+      betgoalteam2: bet.betgoalteam2,
+    });
+  }
+
+  // Build lookup: matchId -> extra bets
+  const extraBetsByMatch = new Map<string, ExtraBetData[]>();
+  for (const bet of extraBetsRaw) {
+    const entry = entryByBetId.get(bet.id);
+    const extraBet: ExtraBetData = {
+      betId: bet.id,
+      betGoalTeam1: bet.betgoalteam1,
+      betGoalTeam2: bet.betgoalteam2,
+      paymentValidated: entry?.paymentvalidated ?? false,
+      receiptUrl: entry?.receipturl ?? null,
+      createdAt: bet.createdat,
+    };
+    const list = extraBetsByMatch.get(bet.matchid);
+    if (list) {
+      list.push(extraBet);
+    } else {
+      extraBetsByMatch.set(bet.matchid, [extraBet]);
     }
   }
+
+  // Available credits for the user
+  const userCredits: number = profile?.availablepoolcredits ?? 0;
 
   // Compute lock status and build match objects
   const now = new Date();
@@ -106,6 +167,10 @@ export default async function PortalPage() {
       ground: m.ground,
       existingBet: betByMatch.get(m.matchId) ?? null,
       isLocked,
+      hasExtraPool: motdMatchIds.has(m.matchId),
+      userId: user!.id,
+      availableCredits: userCredits,
+      extraBets: extraBetsByMatch.get(m.matchId) ?? [],
     };
   });
 
@@ -175,6 +240,25 @@ export default async function PortalPage() {
                 />
               </svg>
               View Ranking
+            </Link>
+            <Link
+              href="/portal/pool-history"
+              className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50/50 px-4 py-2 text-sm font-medium text-amber-700 transition-colors hover:border-amber-300 hover:bg-amber-50"
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"
+                />
+              </svg>
+              Pool History
             </Link>
             <Link
               href="/portal/stats"

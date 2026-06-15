@@ -1,0 +1,168 @@
+M1 — MOTD Visual Highlighting ❌ Not started
+
+┌────────────────────────────────────────────────────────────────────┬────────────────────────────────────────────┐
+│                           What's needed                            │                What exists                 │
+├────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────┤
+│ PredictionCardProps must include hasExtraPool: boolean             │ Missing from the interface                 │
+├────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────┤
+│ Portal page must query DB for hasextrapool and merge into          │ Portal page only fetches bets, not         │
+│ MatchWithBet                                                       │ hasextrapool                               │
+├────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────┤
+│ Gold border + "Match of the Day" badge on cards where hasextrapool │ No conditional styling exists              │
+│  = true                                                            │                                            │
+└────────────────────────────────────────────────────────────────────┴────────────────────────────────────────────┘
+
+M2 — Extra Prediction Server Actions ❌ Not started
+
+┌────────────────────────────────────────────────┬────────────────────────────────────────────────────────────────┐
+│                 What's needed                  │                          What exists                           │
+├────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────┤
+│ createExtraPrediction() — validates MOTD +     │ No server action exists                                        │
+│ deadline + no duplicates                       │                                                                │
+├────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────┤
+│ editExtraPrediction() — score/receipt editable │ —                                                              │
+│  only if paymentvalidated = false              │                                                                │
+├────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────┤
+│ deleteExtraPrediction() — credit refund on     │ —                                                              │
+│ deletion, receipt file cleanup                 │                                                                │
+├────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────┤
+│                                                │ matchbets has no unique constraint on (userid, matchid,        │
+│ Duplicate score check per user/match           │ betgoalteam1, betgoalteam2) in the current schema — this needs │
+│                                                │  addressing                                                    │
+└────────────────────────────────────────────────┴────────────────────────────────────────────────────────────────┘
+
+M3 — Daily Pool UI ❌ Not started
+
+┌──────────────────────────────────────────────────────────────┬──────────────────────────────────────────────┐
+│                        What's needed                         │                 What exists                  │
+├──────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ Extra predictions list inside MOTD card (with status badges) │ No UI                                        │
+├──────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ Receipt upload (JPG/PNG/WEBP, ≤5MB)                          │ No upload component                          │
+├──────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ Credit usage toggle ("Upload Receipt" vs "Use Credit")       │ Credits are displayed in profile drawer only │
+├──────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ Create/Edit/Delete buttons for pending entries               │ —                                            │
+└──────────────────────────────────────────────────────────────┴──────────────────────────────────────────────┘
+
+M4 — Pool History ❌ Not started
+
+┌───────────────────────────────────────────────────────────────┬─────────────────────────────────────────┐
+│                         What's needed                         │               What exists               │
+├───────────────────────────────────────────────────────────────┼─────────────────────────────────────────┤
+│ /portal/pool-history page                                     │ No page/route exists                    │
+├───────────────────────────────────────────────────────────────┼─────────────────────────────────────────┤
+│ Table of extra predictions with match info + status + credits │ —                                       │
+├───────────────────────────────────────────────────────────────┼─────────────────────────────────────────┤
+│ Link from profile drawer and portal nav                       │ Profile drawer has no pool history link │
+└───────────────────────────────────────────────────────────────┴─────────────────────────────────────────┘
+
+M5 — Storage Setup ❌ Not started
+
+┌────────────────────────────────────────────────────────────────────────────┬────────────────┐
+│                               What's needed                                │  What exists   │
+├────────────────────────────────────────────────────────────────────────────┼────────────────┤
+│ Supabase Storage bucket for receipts                                       │ Not configured │
+├────────────────────────────────────────────────────────────────────────────┼────────────────┤
+│ Upload/replace/delete logic with path {userid}/{matchid}/{timestamp}.{ext} │ No code        │
+├────────────────────────────────────────────────────────────────────────────┼────────────────┤
+│ Orphaned file prevention                                                   │ —              │
+└────────────────────────────────────────────────────────────────────────────┴────────────────┘
+
+---
+
+- ✅ All database tables exist (extrapoolentries, matchpools, matchbets.haspaidextrapool)
+- ✅ RLS policies for extrapoolentries are in place
+- ✅ TypeScript types (ExtraPoolEntryRow, MatchPoolRow, etc.)
+- ✅ Daily pool constants (DAILY_POOL_MINIMUM_PLAYERS, percentages)
+- ✅ Multi-bet detection in rules.ts (hasMultipleBets, buildMultiBetKeySet)
+- ✅ Credits displayed in profile drawer
+- ✅ Deadline logic reusable from Phase 2
+- ✅ Portal auth/payment gate in layout.tsx
+
+---
+Implementation Plan
+
+Here's the proposed order — each milestone builds on the previous:
+
+┌─────┬──────────────────────┬────────────────────────────────────────────────────────────────────────────────────┐
+│  #  │      Milestone       │                                       Scope                                        │
+├─────┼──────────────────────┼────────────────────────────────────────────────────────────────────────────────────┤
+│ M1  │ MOTD Highlighting    │ Add hasExtraPool to MatchWithBet, query DB, gold border + badge in PredictionCard  │
+├─────┼──────────────────────┼────────────────────────────────────────────────────────────────────────────────────┤
+│ M2  │ Extra Prediction     │ createExtraPrediction, editExtraPrediction, deleteExtraPrediction server actions   │
+│     │ Actions              │ with all validation rules                                                          │
+├─────┼───────────
+│ M3  │ Daily Pool UI        │ Extra predictions panel inside MOTD card, receipt upload component, credit toggle  │
+├─────┼──────────────────────┼────────────────────────────────────────────────────────────────────────────────────┤
+│ M4  │ Pool History         │ /portal/pool-history page, navigation links from profile drawer + portal           │
+├─────┼──────────────────────┼────────────────────────────────────────────────────────────────────────────────────┤
+│ M5  │ Storage Setup        │ Supabase bucket config, upload/replace/delete helpers, cleanup logic               │
+└─────┴──────────────────────┴────────────────────────────────────────────────────────────────────────────────────┘
+
+│ Extra predictions list inside MOTD card (with status badges) │ No UI                                        │
+├──────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ Receipt upload (JPG/PNG/WEBP, ≤5MB)                          │ No upload component                          │
+├──────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ Credit usage toggle ("Upload Receipt" vs "Use Credit")       │ Credits are displayed in profile drawer only │
+├──────────────────────────────────────────────────────────────┼──────────────────────────────────────────────┤
+│ Create/Edit/Delete buttons for pending entries               │ —                                            │
+└──────────────────────────────────────────────────────────────┴──────────────────────────────────────────────┘
+
+M4 — Pool History ❌ Not started
+
+┌───────────────────────────────────────────────────────────────┬─────────────────────────────────────────┐
+│                         What's needed                         │               What exists               │
+├───────────────────────────────────────────────────────────────┼─────────────────────────────────────────┤
+│ /portal/pool-history page                                     │ No page/route exists                    │
+├───────────────────────────────────────────────────────────────┼─────────────────────────────────────────┤
+│ Table of extra predictions with match info + status + credits │ —                                       │
+├───────────────────────────────────────────────────────────────┼─────────────────────────────────────────┤
+│ Link from profile drawer and portal nav                       │ Profile drawer has no pool history link │
+└───────────────────────────────────────────────────────────────┴─────────────────────────────────────────┘
+
+M5 — Storage Setup ❌ Not started
+
+┌────────────────────────────────────────────────────────────────────────────┬────────────────┐
+│                               What's needed                                │  What exists   │
+├────────────────────────────────────────────────────────────────────────────┼────────────────┤
+│ Supabase Storage bucket for receipts                                       │ Not configured │
+├────────────────────────────────────────────────────────────────────────────┼────────────────┤
+│ Upload/replace/delete logic with path {userid}/{matchid}/{timestamp}.{ext} │ No code        │
+├────────────────────────────────────────────────────────────────────────────┼────────────────┤
+│ Orphaned file prevention                                                   │ —              │
+└────────────────────────────────────────────────────────────────────────────┴────────────────┘
+
+---
+Existing infrastructure ready for Phase 4
+
+- ✅ All database tables exist (extrapoolentries, matchpools, matchbets.haspaidextrapool)
+- ✅ RLS policies for extrapoolentries are in place
+- ✅ TypeScript types (ExtraPoolEntryRow, MatchPoolRow, etc.)
+- ✅ Daily pool constants (DAILY_POOL_MINIMUM_PLAYERS, percentages)
+- ✅ Multi-bet detection in rules.ts (hasMultipleBets, buildMultiBetKeySet)
+- ✅ Credits displayed in profile drawer
+- ✅ Deadline logic reusable from Phase 2
+- ✅ Portal auth/payment gate in layout.tsx
+
+---
+Implementation Plan
+
+Here's the proposed order — each milestone builds on the previous:
+
+┌─────┬──────────────────────┬────────────────────────────────────────────────────────────────────────────────────┐
+│  #  │      Milestone       │                                       Scope                                        │
+├─────┼──────────────────────┼────────────────────────────────────────────────────────────────────────────────────┤
+│ M1  │ MOTD Highlighting    │ Add hasExtraPool to MatchWithBet, query DB, gold border + badge in PredictionCard  │
+├─────┼──────────────────────┼────────────────────────────────────────────────────────────────────────────────────┤
+│ M2  │ Extra Prediction     │ createExtraPrediction, editExtraPrediction, deleteExtraPrediction server actions   │
+│     │ Actions              │ with all validation rules                                                          │
+├─────┼──────────────────────┼────────────────────────────────────────────────────────────────────────────────────┤
+│ M3  │ Daily Pool UI        │ Extra predictions panel inside MOTD card, receipt upload component, credit toggle  │
+├─────┼──────────────────────┼────────────────────────────────────────────────────────────────────────────────────┤
+│ M4  │ Pool History         │ /portal/pool-history page, navigation links from profile drawer + portal           │
+├─────┼──────────────────────┼────────────────────────────────────────────────────────────────────────────────────┤
+│ M5  │ Storage Setup        │ Supabase bucket config, upload/replace/delete helpers, cleanup logic               │
+└─────┴──────────────────────┴────────────────────────────────────────────────────────────────────────────────────┘
+├────────────────────────────────────────────────────────────────────────────┼────────────────┤
+│ Upload/replace/de

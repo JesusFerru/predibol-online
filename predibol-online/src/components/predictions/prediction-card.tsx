@@ -4,6 +4,10 @@ import { savePrediction } from "@/app/portal/actions";
 import { useState, useTransition } from "react";
 import Image from "next/image";
 import { fifaToIsoMap } from "@/lib/data/countries";
+import {
+  ExtraPredictionPanel,
+  type ExtraBetData,
+} from "./extra-prediction-panel";
 
 interface ExistingBet {
   betgoalteam1: number;
@@ -25,6 +29,13 @@ export interface PredictionCardProps {
   ground: string;
   existingBet: ExistingBet | null;
   isLocked: boolean;
+  hasExtraPool: boolean;
+  /** User ID for receipt uploads and credit operations */
+  userId: string;
+  /** Available pool credits for the current user */
+  availableCredits: number;
+  /** Existing extra predictions for this match (Daily Pool) */
+  extraBets: ExtraBetData[];
 }
 
 /**
@@ -88,6 +99,10 @@ export function PredictionCard({
   ground,
   existingBet,
   isLocked,
+  hasExtraPool,
+  userId,
+  availableCredits,
+  extraBets,
 }: PredictionCardProps) {
   const [goal1, setGoal1] = useState<number | "">(
     existingBet?.betgoalteam1 ?? "",
@@ -152,6 +167,8 @@ export function PredictionCard({
             ? "border-gray-200 bg-gray-50/40"
             : isCanceled
               ? "border-red-200 bg-red-50/20"
+            : hasExtraPool
+              ? "border-amber-400 bg-amber-50/30"
               : "border-gray-100"
       }`}
     >
@@ -166,6 +183,11 @@ export function PredictionCard({
           {round && !group && (
             <span className="shrink-0 rounded-full bg-crimson/10 px-2 py-0.5 text-[11px] font-semibold text-crimson">
               {round}
+            </span>
+          )}
+          {hasExtraPool && (
+            <span className="shrink-0 rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-700">
+              Match of the Day
             </span>
           )}
           <span className="truncate text-xs text-gray-400">
@@ -313,6 +335,17 @@ export function PredictionCard({
           <p className="mt-2 text-center text-[11px] text-amber-600">
             Deadline passed. No prediction was saved.
           </p>
+        )}
+
+        {/* ── Daily Pool section (Match of the Day only) ── */}
+        {hasExtraPool && (
+          <ExtraPredictionPanel
+            matchId={matchId}
+            userId={userId}
+            isLocked={isLocked}
+            availableCredits={availableCredits}
+            extraBets={extraBets}
+          />
         )}
       </div>
     </div>
