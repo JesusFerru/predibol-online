@@ -121,6 +121,7 @@ export function PredictionList({ dayGroups }: PredictionListProps) {
               ground={match.ground}
               existingBet={match.existingBet}
               isLocked={match.isLocked}
+              hasExtraPool={match.hasExtraPool}
             />
           ))}
         </div>

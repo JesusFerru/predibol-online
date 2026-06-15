@@ -25,6 +25,7 @@ export interface PredictionCardProps {
   ground: string;
   existingBet: ExistingBet | null;
   isLocked: boolean;
+  hasExtraPool: boolean;
 }
 
 /**
@@ -88,6 +89,7 @@ export function PredictionCard({
   ground,
   existingBet,
   isLocked,
+  hasExtraPool,
 }: PredictionCardProps) {
   const [goal1, setGoal1] = useState<number | "">(
     existingBet?.betgoalteam1 ?? "",
@@ -152,6 +154,8 @@ export function PredictionCard({
             ? "border-gray-200 bg-gray-50/40"
             : isCanceled
               ? "border-red-200 bg-red-50/20"
+            : hasExtraPool
+              ? "border-amber-400 bg-amber-50/30"
               : "border-gray-100"
       }`}
     >
@@ -166,6 +170,11 @@ export function PredictionCard({
           {round && !group && (
             <span className="shrink-0 rounded-full bg-crimson/10 px-2 py-0.5 text-[11px] font-semibold text-crimson">
               {round}
+            </span>
+          )}
+          {hasExtraPool && (
+            <span className="shrink-0 rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-700">
+              Match of the Day
             </span>
           )}
           <span className="truncate text-xs text-gray-400">

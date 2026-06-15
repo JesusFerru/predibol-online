@@ -70,6 +70,20 @@ export default async function PortalPage() {
     .select("matchid, betgoalteam1, betgoalteam2")
     .eq("userid", user!.id);
 
+  // Fetch which matches have an extra pool (Match of the Day)
+  const { data: extraPoolMatches } = await supabase
+    .from("matchresults")
+    .select("matchid, hasextrapool")
+    .eq("hasextrapool", true);
+
+  // Build a lookup set of MOTD match IDs
+  const motdMatchIds = new Set<string>();
+  if (extraPoolMatches) {
+    for (const m of extraPoolMatches) {
+      motdMatchIds.add(m.matchid);
+    }
+  }
+
   // Build a lookup map of matchId -> bet
   const betByMatch = new Map<
     string,
@@ -106,6 +120,7 @@ export default async function PortalPage() {
       ground: m.ground,
       existingBet: betByMatch.get(m.matchId) ?? null,
       isLocked,
+      hasExtraPool: motdMatchIds.has(m.matchId),
     };
   });
 
